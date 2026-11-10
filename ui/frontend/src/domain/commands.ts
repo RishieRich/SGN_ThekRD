@@ -36,7 +36,8 @@ function wordsGlobal(alternatives: string) {
 
 const absentWords =
   'absent|absentees?|not come|not came|did not come|didn\'t come|nahi aaya|nahi aaye|nahi aayi|nahin aaya|nahin aaye|nahi aya|nahi aye|gair ?hazir|gair ?haazir|chutti|chhutti|on leave|leave|' +
-  'गैरहाज़िर|गैरहाजिर|गैरहजर|गैर हाज़िर|नहीं आया|नहीं आए|नहीं आई|नहीं आये|नही आया|नही आए|छुट्टी|छुट्टी पर|आले नाही|आला नाही|सुट्टी|' +
+  // Speech-to-text often splits "गैरहाज़िर" and drops the nukta: allow a space or hyphen, nukta optional.
+  'ग\\u093C?ैर[ -]?हा(?:ज\\u093C?|\\u095B)िर|ग\\u093C?ैर[ -]?हजर|ગેર[ -]?હાજર|नहीं आया|नहीं आए|नहीं आई|नहीं आये|नही आया|नही आए|छुट्टी|छुट्टी पर|आले नाही|आला नाही|सुट्टी|' +
   'ગેરહાજર|આવ્યા નથી|આવ્યો નથી|રજા';
 const presentWords = 'present|came|aaya|aaye|aa gaya|aa gaye|hazir|haazir|हाज़िर|हाजिर|हजर|आया|आए|आ गया|आ गए|आले|हाजर|હાજર|આવ્યા|આવ્યો';
 const remindWords = 'remind|reminder|yaad|याद|आठवण|યાદ';

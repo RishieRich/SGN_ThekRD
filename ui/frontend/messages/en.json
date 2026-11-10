@@ -278,7 +278,39 @@
     "answerThree": "{worker} was absent the most: {days} days this month.",
     "answerFour": "PF details are pending for {count} active workers.",
     "source": "From your sample data",
-    "listen": "Listen"
+    "listen": "Listen",
+    "statusTitle": "AI connections",
+    "statusHint": "Only the owner and admin see this.",
+    "checkAgain": "Check again",
+    "tryQuestion": "Try a question",
+    "testVoice": "Play a voice",
+    "testMic": "Try the mic",
+    "sampleQuestion": "Which company has the most night-shift workers?",
+    "voiceSample": "Namaste! This is how ARQ Thekedar sounds when it reads your updates aloud.",
+    "provider": {
+      "gemini": {
+        "name": "Gemini",
+        "purpose": "Open questions"
+      },
+      "sarvam": {
+        "name": "Sarvam AI",
+        "purpose": "Voice in your language"
+      }
+    },
+    "status": {
+      "checking": "Checking…",
+      "connected": "Connected",
+      "missing_key": "Key not added",
+      "invalid_key": "Key not accepted",
+      "no_credits": "No credits left",
+      "error": "Not reachable"
+    },
+    "fix": {
+      "missing_key": "Add {name} to the .env file, then restart the app.",
+      "invalid_key": "The provider rejected {name}. Copy the key again, paste it in .env, then restart the app.",
+      "no_credits": "{name} works, but the account has no credits. Add credits on the provider's website.",
+      "error": "Couldn't reach the provider. Check the internet connection and try again."
+    }
   },
   "roles": {
     "helper": "Helper",
@@ -516,7 +548,20 @@
     "openProfile": "Open profile",
     "unknownTitle": "I didn't catch that",
     "unknownBody": "Try a name with “absent”, “remind me …”, “add new worker …”, or a question like “how many present today?”",
-    "didYouMean": "Did you mean"
+    "didYouMean": "Did you mean",
+    "transcribing": "Writing down what you said…",
+    "voiceFailed": "Couldn't catch that. Tap the mic and try again.",
+    "speakAutoStop": "Speak now. It stops by itself when you pause.",
+    "voicePrivacySarvam": "Your voice goes to Sarvam AI only to be written down. Nothing is saved until you confirm.",
+    "aiThinking": "Thinking…",
+    "aiSource": "Worded by AI from your app's own numbers",
+    "aiFailedTitle": "I couldn't answer that",
+    "aiError": {
+      "invalid_key": "Gemini did not accept the key in .env (GEMINI_API_KEY). Copy it again from Google AI Studio.",
+      "missing_key": "Add GEMINI_API_KEY to .env to answer open questions.",
+      "no_credits": "The Gemini account has no quota left.",
+      "error": "Gemini could not be reached. Try again in a moment."
+    }
   },
   "excel": {
     "unknownRole": "Unknown role: {name} (using Helper)",

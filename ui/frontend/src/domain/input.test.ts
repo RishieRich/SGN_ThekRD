@@ -223,6 +223,22 @@ describe('reminder timing', () => {
   });
 });
 
+describe('spoken text from Sarvam', () => {
+  it('reads absences the way Sarvam writes them down', () => {
+    const heard = parseCommand('आज सुरेश यादव और इमरान शेख गैर हाजिर हैं।', workers, companies);
+    expect(heard.kind).toBe('absent');
+    if (heard.kind === 'absent') expect(heard.matched.map((worker) => worker.name).sort()).toEqual(['Imran Shaikh', 'Suresh Yadav']);
+  });
+});
+
+describe('open questions for the AI', () => {
+  it('sends the Ask page sample question to the AI in every language', () => {
+    for (const messages of [en, hi, mr, gu]) {
+      expect(parseCommand(messages.ask.sampleQuestion, workers, companies)).toEqual({kind: 'question', topic: 'open'});
+    }
+  });
+});
+
 describe('assistant example chips', () => {
   // Every example the assistant suggests must do what it promises, in every language.
   it.each([['en', en], ['hi', hi], ['mr', mr], ['gu', gu]] as const)('%s examples parse', (_, messages) => {

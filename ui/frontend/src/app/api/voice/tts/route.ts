@@ -18,6 +18,9 @@ export async function POST(request: Request) {
     return new NextResponse(new Uint8Array(audio), {headers: {'content-type': 'audio/mpeg', 'cache-control': 'private, max-age=86400'}});
   } catch (error) {
     const status = error instanceof ProviderError ? error.status : 'error';
-    return NextResponse.json({code: status}, {status: status === 'missing_key' ? 501 : 502});
+    const detail = error instanceof Error ? error.message : 'Unknown error';
+    console.error(`[ai] ${new URL(request.url).pathname}: ${status}: ${detail}`);
+    // The provider's own message (never the key), so the owner can see what to fix.
+    return NextResponse.json({code: status, detail}, {status: status === 'missing_key' ? 501 : 502});
   }
 }

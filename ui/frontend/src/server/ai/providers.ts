@@ -179,7 +179,8 @@ export async function sarvamSpeak(text: string, locale: Locale) {
 
 export async function sarvamTranscribe(audio: Blob, locale: Locale) {
   const form = new FormData();
-  form.append('file', audio, audio.type.includes('mp4') ? 'speech.mp4' : audio.type.includes('ogg') ? 'speech.ogg' : 'speech.webm');
+  const extension = ['mp4', 'ogg', 'mpeg', 'mp3', 'wav', 'aac', 'flac'].find((type) => audio.type.includes(type)) ?? 'webm';
+  form.append('file', audio, `speech.${extension === 'mpeg' ? 'mp3' : extension}`);
   form.append('model', sarvamSttModel());
   form.append('language_code', sarvamLanguage[locale]);
   const response = await fetch(`${sarvamBase}/speech-to-text`, {
