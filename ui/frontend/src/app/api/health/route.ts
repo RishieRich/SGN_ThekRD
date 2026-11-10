@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {geminiChatModel, geminiModels, ProviderError, providerKeys, sarvamCheck, sarvamSttModel, sarvamTtsModel, type ProviderStatus} from '@/server/ai/providers';
+import {geminiChatModel, geminiChatModels, geminiModels, ProviderError, providerKeys, sarvamCheck, sarvamSttModel, sarvamTtsModel, type ProviderStatus} from '@/server/ai/providers';
 import {getCurrentUser} from '@/server/session';
 
 export const dynamic = 'force-dynamic';
@@ -21,7 +21,7 @@ export async function GET() {
       if (!keys.gemini) return {status: 'missing_key' as ProviderStatus};
       try {
         const models = await geminiModels();
-        return {status: 'connected' as ProviderStatus, chatModel: await geminiChatModel(), textModels: models.filter((name) => name.startsWith('gemini')).length};
+        return {status: 'connected' as ProviderStatus, chatModel: await geminiChatModel(), candidates: await geminiChatModels(), flashModels: models.filter((name) => /flash/.test(name))};
       } catch (error) {
         return failure(error);
       }

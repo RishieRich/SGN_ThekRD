@@ -49,6 +49,7 @@ interface GeminiModel {
 }
 
 let modelCache: {at: number; models: string[]} | null = null;
+let lastGoodModel: string | null = null;
 
 export async function geminiModels(): Promise<string[]> {
   const key = env('GEMINI_API_KEY');
@@ -69,9 +70,12 @@ export async function geminiModels(): Promise<string[]> {
 }
 
 /** GEMINI_MODEL_CHAT if set; otherwise the newest stable "flash" text model this key can use. */
-export async function geminiChatModel() {
+/**
+ * Text models to try, best first: GEMINI_MODEL_CHAT if set, then the newest stable "flash" models.
+ * A busy model hands over to the next one instead of failing the question.
+ */
+export async function geminiChatModels() {
   const configured = env('GEMINI_MODEL_CHAT');
-  if (configured) return configured;
   const models = await geminiModels();
   const version = (name: string) => Number(name.match(/gemini-(\d+(?:\.\d+)?)/)?.[1] ?? 0);
   const stableFlash = models
@@ -80,37 +84,114 @@ export async function geminiChatModel() {
   const anyFlash = models
     .filter((name) => /flash/.test(name) && !/lite|image|tts|audio|live|embed|thinking|exp/.test(name))
     .sort((left, right) => version(right) - version(left));
-  const chosen = stableFlash[0] ?? anyFlash[0] ?? models.find((name) => name.startsWith('gemini'));
-  if (!chosen) throw new ProviderError('error', 'No Gemini text model is available for this key');
-  return chosen;
+  const ranked = [...new Set([...(configured ? [configured] : []), ...stableFlash, ...anyFlash])].slice(0, 3);
+  // The model that answered last goes first while it keeps answering (newest models are often the busiest).
+  if (lastGoodModel && ranked.includes(lastGoodModel)) return [lastGoodModel, ...ranked.filter((name) => name !== lastGoodModel)];
+  if (!ranked.length) throw new ProviderError('error', 'No Gemini text model is available for this key');
+  return ranked;
 }
 
-export async function geminiAnswer({system, prompt}: {system: string; prompt: string}) {
-  const key = env('GEMINI_API_KEY');
-  if (!key) throw new ProviderError('missing_key', 'GEMINI_API_KEY is empty');
-  const model = await geminiChatModel();
-  const response = await fetch(`${geminiBase}/models/${encodeURIComponent(model)}:generateContent`, {
-    method: 'POST',
-    headers: {'x-goog-api-key': key, 'content-type': 'application/json'},
-    body: JSON.stringify({
-      systemInstruction: {parts: [{text: system}]},
-      contents: [{role: 'user', parts: [{text: prompt}]}],
-      generationConfig: {temperature: 0.2, maxOutputTokens: 2048}
-    }),
-    cache: 'no-store'
-  });
+export async function geminiChatModel() {
+  return (await geminiChatModels())[0];
+}
+
+type GeminiReply = {candidates?: Array<{content?: {parts?: Array<{text?: string; thought?: boolean}>}}>};
+
+/** Short answers from given facts need little reasoning; less thinking answers much faster. */
+function thinkingFor(model: string) {
+  if (/^gemini-([3-9]|\d{2})/.test(model)) return {thinkingConfig: {thinkingLevel: 'low'}};
+  if (/^gemini-2\.5-flash/.test(model)) return {thinkingConfig: {thinkingBudget: 0}};
+  return {};
+}
+
+async function askModel(key: string, model: string, system: string, prompt: string, signal: AbortSignal) {
+  const startedAt = Date.now();
+  const send = (withThinking: boolean) =>
+    fetch(`${geminiBase}/models/${encodeURIComponent(model)}:generateContent`, {
+      method: 'POST',
+      headers: {'x-goog-api-key': key, 'content-type': 'application/json'},
+      body: JSON.stringify({
+        systemInstruction: {parts: [{text: system}]},
+        contents: [{role: 'user', parts: [{text: prompt}]}],
+        generationConfig: {temperature: 0.2, maxOutputTokens: 2048, ...(withThinking ? thinkingFor(model) : {})}
+      }),
+      cache: 'no-store',
+      signal
+    });
+  let response = await send(true);
+  // A model that doesn't take the thinking setting is asked again without it.
+  if (response.status === 400 && Object.keys(thinkingFor(model)).length) response = await send(false);
   if (!response.ok) {
     const message = await readError(response);
-    throw new ProviderError(response.status === 401 || response.status === 403 ? 'invalid_key' : 'error', message);
+    console.info(`[ai] gemini ${model}: ${response.status} in ${Date.now() - startedAt}ms: ${message}`);
+    throw new ProviderError(response.status === 401 || response.status === 403 ? 'invalid_key' : 'error', `${model}: ${message}`);
   }
-  const body = (await response.json()) as {candidates?: Array<{content?: {parts?: Array<{text?: string; thought?: boolean}>}}>};
+  const body = (await response.json()) as GeminiReply;
   const text = (body.candidates?.[0]?.content?.parts ?? [])
     .filter((part) => !part.thought)
     .map((part) => part.text ?? '')
     .join('')
     .trim();
-  if (!text) throw new ProviderError('error', 'Gemini returned an empty answer');
+  console.info(`[ai] gemini ${model}: ${response.status} in ${Date.now() - startedAt}ms`);
+  if (!text) throw new ProviderError('error', `${model} returned an empty answer`);
   return {text, model};
+}
+
+/**
+ * Asks the best model first. If it is busy or slow, the next model is asked after a short wait too,
+ * and the first good answer wins. A busy model then costs about three seconds instead of the whole answer.
+ */
+export async function geminiAnswer({system, prompt}: {system: string; prompt: string}) {
+  const key = env('GEMINI_API_KEY');
+  if (!key) throw new ProviderError('missing_key', 'GEMINI_API_KEY is empty');
+  const models = await geminiChatModels();
+  const controller = new AbortController();
+  const staggerMs = 3000;
+  const overallMs = 30_000;
+
+  return new Promise<{text: string; model: string}>((resolve, reject) => {
+    let started = 0;
+    let running = 0;
+    let settled = false;
+    let lastError: unknown = null;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    const finish = (outcome: () => void) => {
+      if (settled) return;
+      settled = true;
+      timers.forEach(clearTimeout);
+      controller.abort();
+      outcome();
+    };
+
+    const launch = () => {
+      if (settled || started >= models.length) return;
+      const model = models[started++];
+      running += 1;
+      askModel(key, model, system, prompt, controller.signal)
+        .then((result) => {
+          lastGoodModel = result.model;
+          finish(() => resolve(result));
+        })
+        .catch((error: unknown) => {
+          running -= 1;
+          if (settled) return;
+          lastError = error;
+          if (error instanceof ProviderError && error.status === 'invalid_key') return finish(() => reject(error));
+          launch();
+          if (running === 0 && started >= models.length) finish(() => reject(lastError));
+        });
+    };
+
+    launch();
+    for (let index = 1; index < models.length; index += 1) timers.push(setTimeout(launch, staggerMs * index));
+    timers.push(
+      setTimeout(() => {
+        console.info(`[ai] gemini: no answer within ${overallMs}ms`);
+        finish(() => reject(new ProviderError('error', 'Gemini did not answer in time')));
+      }, overallMs)
+    );
+  });
 }
 
 // ---------------------------------------------------------------------------
