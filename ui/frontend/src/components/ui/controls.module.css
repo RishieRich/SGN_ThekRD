@@ -36,7 +36,8 @@
 
 .sheetTitle h2 {
   color: var(--ink-strong);
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 23px;
   letter-spacing: -0.025em;
   line-height: 1.15;

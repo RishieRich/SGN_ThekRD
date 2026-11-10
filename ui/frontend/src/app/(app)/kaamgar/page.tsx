@@ -1,6 +1,6 @@
 'use client';
 
-import {AlertTriangle, ChevronRight, Download, FileWarning, NotebookPen, Plus, Search, UserRoundX, UsersRound, X} from 'lucide-react';
+import {AlertTriangle, ChevronRight, FileSpreadsheet, FileWarning, NotebookPen, Plus, Search, UserRoundX, UsersRound, X} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {Suspense, useMemo, useState} from 'react';
@@ -33,13 +33,12 @@ function WorkersScreen() {
   const t = useTranslations('workers');
   const common = useTranslations('common');
   const roles = useTranslations('roles');
-  const {locale, workers, history, notes, user, canEdit} = useApp();
+  const {locale, workers, history, notes, user, canEdit, openAssistant} = useApp();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('name');
-  const [notice, setNotice] = useState<string | null>(null);
 
   const filter = (params.get('filter') as FilterKey | null) ?? 'all';
   const companyFilter = params.get('company');
@@ -135,12 +134,10 @@ function WorkersScreen() {
       <header className={styles.pageHeader}>
         <div><span>{common('workers')}</span><h1>{t('title')}</h1><p>{t('subtitle', {count: workers.length})}</p></div>
         <div className={styles.headerActions}>
-          <button onClick={() => setNotice(t('importPreview'))} type="button"><Download size={18} /> {t('import')}</button>
+          {canEdit && <button onClick={() => openAssistant('excel', {excelKind: 'workers'})} type="button"><FileSpreadsheet size={18} /> {t('import')}</button>}
           {canEdit && <button onClick={() => setParam({add: '1'})} type="button"><Plus size={18} /> {t('add')}</button>}
         </div>
       </header>
-
-      {notice && <div className={styles.notice}><span>{notice}</span><button aria-label={common('close')} onClick={() => setNotice(null)} type="button"><X size={17} /></button></div>}
 
       <section className={styles.summaryGrid}>
         {summary.map((item) => (

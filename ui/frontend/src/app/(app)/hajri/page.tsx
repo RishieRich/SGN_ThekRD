@@ -2,12 +2,13 @@
 
 import {
   ArrowLeft,
-  Camera,
   Check,
   CheckCircle2,
   ChevronRight,
   Clock3,
+  FileSpreadsheet,
   History,
+  Keyboard,
   ListPlus,
   Lock,
   MessageCircleMore,
@@ -82,10 +83,9 @@ function HajriScreen() {
   const common = useTranslations('common');
   const router = useRouter();
   const params = useSearchParams();
-  const {attendance, workers, history, todayISO, locale, copyAbsentees, confirmOneCompany, confirmEveryCompany, pushToast, canEdit} = useApp();
+  const {attendance, workers, history, todayISO, locale, copyAbsentees, confirmOneCompany, confirmEveryCompany, pushToast, canEdit, openAssistant} = useApp();
   const selectedCompanyId = params.get('company');
   const [selectedDate, setSelectedDate] = useState(todayISO);
-  const [notice, setNotice] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [celebrated, setCelebrated] = useState(false);
   const shareToday = useShareToday();
@@ -181,21 +181,16 @@ function HajriScreen() {
             <button disabled={!canEdit || !yesterday} onClick={sameAsYesterday} type="button">
               <RotateCcw size={20} /><span><strong>{t('sameYesterday')}</strong><small>{t('sameYesterdayHint', {count: yesterday?.absentIds.length ?? 0})}</small></span>
             </button>
-            <button onClick={() => setNotice(t('voiceUnavailable'))} type="button">
+            <button disabled={!canEdit} onClick={() => openAssistant('type')} type="button">
+              <Keyboard size={20} /><span><strong>{t('typeAbsent')}</strong><small>{t('typeAbsentHint')}</small></span>
+            </button>
+            <button disabled={!canEdit} onClick={() => openAssistant('speak')} type="button">
               <Mic size={20} /><span><strong>{t('sayAbsent')}</strong><small>{t('sayAbsentHint')}</small></span>
             </button>
-            <button onClick={() => setNotice(t('photoUnavailable'))} type="button">
-              <Camera size={20} /><span><strong>{t('gatePhotos')}</strong><small>{common('notConnected')}</small></span>
+            <button disabled={!canEdit} onClick={() => openAssistant('excel', {excelKind: 'attendance'})} type="button">
+              <FileSpreadsheet size={20} /><span><strong>{t('excelUpload')}</strong><small>{t('excelUploadHint')}</small></span>
             </button>
           </section>
-
-          <AnimatePresence>
-            {notice && (
-              <motion.div animate={{opacity: 1, height: 'auto'}} className={styles.notice} exit={{opacity: 0, height: 0}} initial={{opacity: 0, height: 0}}>
-                <span>{notice}</span><button aria-label={common('close')} onClick={() => setNotice(null)} type="button"><X size={17} /></button>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           <section className={styles.companyGrid}>
             {companies.map((company, index) => (

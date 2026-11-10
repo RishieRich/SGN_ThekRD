@@ -1,4 +1,5 @@
 import type {AttendanceNote, Company, LocalAttendance, Shift, Worker} from '@/types';
+import {looseKey, nameKey} from './names';
 
 export const emptyAttendance: LocalAttendance = {
   absentWorkerIds: [],
@@ -132,25 +133,30 @@ export function gateDifference(attendance: LocalAttendance, workers: Worker[], c
   return shiftAttendance(workers, attendance, companyId, shift).present - gate;
 }
 
-function normaliseName(value: string) {
-  return value
-    .toLocaleLowerCase()
-    .replace(/\b(bhai|ben|shri|shree|ji|mr|mrs)\b/g, ' ')
-    .replace(/[^\p{L}\p{N} ]/gu, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+/** Comparable form of a name in any script (see domain/names). */
+export function normaliseName(value: string) {
+  return nameKey(value);
 }
 
 /** Simple prefix matching on any part of the name; best matches first. */
 export function searchWorkers(workers: Worker[], query: string, limit = 8) {
   const needle = normaliseName(query);
   if (needle.length < 2) return [];
+  const looseNeedle = looseKey(needle);
   return workers
     .filter((worker) => worker.status === 'active' && worker.companyId)
     .map((worker) => {
       const name = normaliseName(worker.name);
       const parts = name.split(' ');
-      const score = name === needle ? 3 : name.startsWith(needle) ? 2 : parts.some((part) => part.startsWith(needle)) ? 1 : name.includes(needle) ? 0.5 : 0;
+      const loose = looseKey(name);
+      const score =
+        name === needle ? 3
+        : loose === looseNeedle ? 2.5
+        : name.startsWith(needle) ? 2
+        : parts.some((part) => part.startsWith(needle)) ? 1
+        : looseNeedle.length >= 3 && (loose.startsWith(looseNeedle) || loose.split(' ').some((part) => part.startsWith(looseNeedle))) ? 0.75
+        : name.includes(needle) ? 0.5
+        : 0;
       return {worker, score};
     })
     .filter((item) => item.score > 0)

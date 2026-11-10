@@ -25,9 +25,10 @@
 .pageHeader h1,
 .sheetHeader h1 {
   color: var(--ink-strong);
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: clamp(34px, 7vw, 50px);
-  letter-spacing: -0.045em;
+  letter-spacing: -0.035em;
   line-height: 1.05;
 }
 
@@ -112,7 +113,8 @@
 
 .dateButton strong,
 .dateActive strong {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 20px;
 }
 
@@ -150,7 +152,8 @@
 
 .quickMarkHead h2 {
   color: var(--ink-strong);
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 22px;
   letter-spacing: -0.02em;
 }
@@ -423,7 +426,7 @@
 .quickActions {
   display: grid;
   gap: 10px;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 16px;
 }
 
@@ -436,13 +439,15 @@
   display: flex;
   gap: 12px;
   min-height: 62px;
-  padding: 10px 14px;
+  padding: 10px 12px;
   text-align: left;
-  transition: border-color 140ms ease;
+  transition: border-color 140ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
 .quickActions > button:hover:not(:disabled) {
-  border-color: var(--brass-500);
+  border-color: var(--royal-300);
+  box-shadow: 0 10px 24px rgb(91 78 230 / 10%);
+  transform: translateY(-1px);
 }
 
 .quickActions > button:disabled {
@@ -581,7 +586,8 @@
 
 .companyName h2 {
   color: var(--ink-strong);
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 20px;
   letter-spacing: -0.025em;
   line-height: 1.15;
@@ -634,7 +640,8 @@
 }
 
 .shiftCounts strong {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 19px;
 }
 
@@ -705,7 +712,8 @@
 
 .confirmBar > div strong,
 .sheetFooter > div strong {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 22px;
 }
 
@@ -773,7 +781,8 @@
 }
 
 .confirmSheet h2 {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 29px;
   letter-spacing: -0.035em;
 }
@@ -888,7 +897,8 @@
 }
 
 .pastHead h2 {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 22px;
 }
 
@@ -1384,7 +1394,8 @@
 }
 
 .emptyAbsent h2 {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 21px;
 }
 
@@ -1399,10 +1410,13 @@
   z-index: 18;
 }
 
-@media (min-width: 600px) {
+@media (min-width: 900px) {
   .quickActions {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+
+@media (min-width: 600px) {
 
   .companyGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

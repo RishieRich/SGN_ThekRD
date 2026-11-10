@@ -24,9 +24,22 @@ import {createNote} from '@/domain/notes';
 import {announceKey, createReminder, newlyDue, snoozeReminder} from '@/domain/reminders';
 import {applyWorkerEdits, emptyWorkerEdits, patchWorker, type NewWorkerInput, createWorker, type WorkerEdits} from '@/domain/workers';
 import {companies, sampleReminders, workers as sampleWorkers} from '@/data/sample-data';
+import type {ImportKind} from '@/domain/imports';
 import type {AppUser, AttendanceNote, Locale, LocalAttendance, NoteTag, Reminder, Shift, Worker, WorkerNote} from '@/types';
 
 const messages = {en, hi, mr, gu};
+
+export type InputMode = 'type' | 'speak' | 'excel';
+
+export interface AssistantState {
+  open: boolean;
+  mode: InputMode;
+  /** Text to work on as soon as the panel opens (from the Home bar). */
+  text: string;
+  excelKind: ImportKind | null;
+  /** Changes on every open so the panel can react to a new request. */
+  nonce: number;
+}
 
 export interface Toast {
   id: string;
@@ -52,6 +65,8 @@ interface AppContextValue {
   month: MonthSummary;
   updateWorker: (workerId: string, patch: Partial<Worker>, options?: {silent?: boolean}) => void;
   addWorker: (input: NewWorkerInput) => Worker;
+  addWorkers: (inputs: NewWorkerInput[]) => Worker[];
+  markWorkersAbsent: (workerIds: string[]) => void;
 
   attendance: LocalAttendance;
   toggleWorkerAbsent: (workerId: string, companyId: string) => void;
@@ -74,6 +89,10 @@ interface AppContextValue {
   deleteReminder: (reminderId: string) => void;
   remindersOpen: boolean;
   setRemindersOpen: (open: boolean) => void;
+
+  assistant: AssistantState;
+  openAssistant: (mode?: InputMode, options?: {text?: string; excelKind?: ImportKind}) => void;
+  closeAssistant: () => void;
 
   toasts: Toast[];
   pushToast: (toast: Omit<Toast, 'id'>) => void;
@@ -122,6 +141,13 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [remindersOpen, setRemindersOpen] = useState(false);
+  const [assistant, setAssistant] = useState<AssistantState>({open: false, mode: 'type', text: '', excelKind: null, nonce: 0});
+  const openAssistant = useCallback(
+    (mode: InputMode = 'type', options: {text?: string; excelKind?: ImportKind} = {}) =>
+      setAssistant((current) => ({open: true, mode, text: options.text ?? '', excelKind: options.excelKind ?? null, nonce: current.nonce + 1})),
+    []
+  );
+  const closeAssistant = useCallback(() => setAssistant((current) => ({...current, open: false})), []);
   const announced = useRef<Set<string>>(new Set());
   const todayISO = toISODate(now);
   const canEdit = user.role !== 'viewer';
@@ -245,9 +271,35 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
   const addWorker = useCallback(
     (input: NewWorkerInput) => {
       const worker = createWorker(input, workersRef.current);
+      // Keep the ref current so two quick adds before a re-render never share an id.
+      workersRef.current = [...workersRef.current, worker];
       setWorkerEdits((current) => ({...current, added: [...current.added, worker]}));
       return worker;
     },
+    []
+  );
+
+  const addWorkers = useCallback((inputs: NewWorkerInput[]) => {
+    const created: Worker[] = [];
+    let pool = workersRef.current;
+    for (const input of inputs) {
+      const worker = createWorker(input, pool);
+      pool = [...pool, worker];
+      created.push(worker);
+    }
+    workersRef.current = pool;
+    setWorkerEdits((current) => ({...current, added: [...current.added, ...created]}));
+    return created;
+  }, []);
+
+  const markWorkersAbsent = useCallback(
+    (workerIds: string[]) =>
+      setAttendance((current) =>
+        workerIds.reduce((next, workerId) => {
+          const worker = workersRef.current.find((item) => item.id === workerId);
+          return worker?.companyId ? setAbsent(next, workerId, worker.companyId, true) : next;
+        }, current)
+      ),
     []
   );
 
@@ -324,6 +376,8 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
       month,
       updateWorker,
       addWorker,
+      addWorkers,
+      markWorkersAbsent,
       attendance,
       toggleWorkerAbsent,
       setWorkerAbsent,
@@ -343,12 +397,15 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
       deleteReminder,
       remindersOpen,
       setRemindersOpen,
+      assistant,
+      openAssistant,
+      closeAssistant,
       toasts,
       pushToast,
       dismissToast
     }),
     [
-      addNote, addReminder, addWorker, attendance, canEdit, completeReminder, confirmEveryCompany, confirmOneCompany, copyAbsentees,
+      addNote, addReminder, addWorker, addWorkers, assistant, closeAssistant, markWorkersAbsent, openAssistant, attendance, canEdit, completeReminder, confirmEveryCompany, confirmOneCompany, copyAbsentees,
       deleteNote, deleteReminder, dismissToast, history, hydrated, locale, markAllPresent, month, notes, now, pushToast, reminders,
       remindersOpen, saveAttendanceNote, saveGateCount, setLocale, setWorkerAbsent, snooze, toasts, todayISO, toggleWorkerAbsent,
       updateWorker, user, workers

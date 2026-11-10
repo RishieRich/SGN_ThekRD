@@ -1,6 +1,6 @@
 'use client';
 
-import {ArrowLeft, ArrowRight, Check, Delete, HardHat, ShieldCheck, Sparkles} from 'lucide-react';
+import {ArrowLeft, ArrowRight, Building2, Delete, FileSpreadsheet, HardHat, ShieldCheck, Sparkles, Users} from 'lucide-react';
 import {motion} from 'motion/react';
 import {NextIntlClientProvider, useTranslations} from 'next-intl';
 import {useRouter} from 'next/navigation';
@@ -9,7 +9,11 @@ import en from '../../../messages/en.json';
 import hi from '../../../messages/hi.json';
 import mr from '../../../messages/mr.json';
 import gu from '../../../messages/gu.json';
+import {AmbientBackdrop} from '@/components/ambient/AmbientBackdrop';
+import {ParticleOrb} from '@/components/ambient/ParticleOrb';
+import {SiteScene} from '@/components/ambient/SiteScene';
 import {LogoMark} from '@/components/brand/LogoMark';
+import {companies} from '@/data/sample-data';
 import {LanguageSwitch} from '@/components/ui/LanguageSwitch';
 import {users} from '@/data/users';
 import type {AppUser, Locale} from '@/types';
@@ -29,6 +33,7 @@ export function LoginExperience() {
 function LoginPanel({locale, setLocale}: {locale: Locale; setLocale: (locale: Locale) => void}) {
   const t = useTranslations('login');
   const common = useTranslations('common');
+  const scene = useTranslations('scene');
   const router = useRouter();
   const [selectedUser, setSelectedUser] = useState<AppUser | null>(null);
   const [pin, setPin] = useState('');
@@ -77,25 +82,39 @@ function LoginPanel({locale, setLocale}: {locale: Locale; setLocale: (locale: Lo
 
   return (
     <main className={styles.page}>
+      <AmbientBackdrop />
       <section className={styles.brandPanel}>
         <div className={styles.brandTop}>
-          <LogoMark />
+          <LogoMark intro size="lg" />
         </div>
         <div className={styles.brandStory}>
+          <motion.div animate={{opacity: 1, scale: 1}} className={styles.brandOrb} initial={{opacity: 0, scale: 0.85}} transition={{duration: 0.9, delay: 0.3}}>
+            <ParticleOrb size={168} state="idle" />
+          </motion.div>
           <span className={styles.eyebrow}><Sparkles size={15} /> {common('tagline')}</span>
-          <h1>{common('appName')}</h1>
-          <p>{t('subtitle')}</p>
+          <h1>
+            {common('appName').split(' ').map((word, index) => (
+              <motion.span animate={{opacity: 1, y: 0}} initial={{opacity: 0, y: 18}} key={word} transition={{duration: 0.5, delay: 0.45 + index * 0.1, ease: [0.22, 1, 0.36, 1]}}>
+                {word}{' '}
+              </motion.span>
+            ))}
+          </h1>
+          <p>{t('brandLine')}</p>
           <div className={styles.promiseList}>
-            <span><Check size={17} /> 152</span>
-            <span><Check size={17} /> 5</span>
-            <span><ShieldCheck size={17} /> {common('localPreview')}</span>
+            <span><Users size={16} /> {t('promiseWorkers', {count: 152})}</span>
+            <span><Building2 size={16} /> {t('promiseCompanies', {count: companies.length})}</span>
+            <span><FileSpreadsheet size={16} /> {t('promiseModes')}</span>
+            <span><ShieldCheck size={16} /> {common('localPreview')}</span>
           </div>
         </div>
-        <div className={styles.weave} aria-hidden="true" />
+        <div className={styles.brandScene}>
+          <SiteScene companies={companies} label={scene('loginLabel')} litIds={companies.slice(0, 3).map((company) => company.id)} />
+        </div>
       </section>
 
       <section className={styles.loginPanel}>
         <div className={styles.loginTopbar}>
+          <span className={styles.mobileLogo}><LogoMark intro size="md" /></span>
           <LanguageSwitch label={t('language')} locale={locale} onChange={setLocale} />
         </div>
         <motion.div

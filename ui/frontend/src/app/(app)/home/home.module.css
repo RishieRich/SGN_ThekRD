@@ -2,13 +2,33 @@
   width: 100%;
 }
 
-.pageHeader {
-  align-items: flex-end;
-  display: flex;
-  flex-wrap: wrap;
+/* ---------- Hero: greeting, the input bar and the team at work ---------- */
+.hero {
+  background:
+    radial-gradient(circle at 8% 0%, rgb(255 255 255 / 95%), transparent 22rem),
+    radial-gradient(circle at 100% 100%, rgb(255 207 148 / 28%), transparent 20rem),
+    linear-gradient(140deg, rgb(255 255 255 / 78%), rgb(238 235 254 / 72%));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgb(255 255 255 / 92%);
+  border-radius: var(--r-hero);
+  box-shadow: 0 1px 2px rgb(40 30 120 / 5%), 0 22px 60px rgb(91 78 230 / 12%);
+  display: grid;
   gap: 16px;
-  justify-content: space-between;
-  margin-bottom: 26px;
+  grid-template-areas: 'text' 'bottom' 'scene';
+  grid-template-columns: minmax(0, 1fr);
+  margin-bottom: 22px;
+  overflow: hidden;
+  padding: 22px 18px 16px;
+  position: relative;
+}
+
+.heroText {
+  grid-area: text;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .date {
@@ -17,21 +37,80 @@
   font-size: 12px;
   font-weight: 820;
   letter-spacing: 0.08em;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   text-transform: uppercase;
 }
 
-.pageHeader h1 {
+.heroText h1 {
   color: var(--ink-strong);
-  font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(34px, 7vw, 52px);
-  letter-spacing: -0.045em;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(32px, 6.4vw, 50px);
+  font-weight: 780;
+  letter-spacing: -0.035em;
   line-height: 1.05;
 }
 
-.pageHeader p {
+.heroText h1 span {
+  display: inline-block;
+  white-space: pre;
+}
+
+.heroText > p {
   color: var(--muted);
-  margin-top: 7px;
+  font-size: 15px;
+  margin-top: 8px;
+  max-width: 520px;
+}
+
+.heroBottom {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+  grid-area: bottom;
+  position: relative;
+  z-index: 1;
+}
+
+.heroBar {
+  flex: 1 1 520px;
+  max-width: 760px;
+  min-width: 0;
+}
+
+.heroScene {
+  align-self: end;
+  grid-area: scene;
+  margin: 0;
+  min-width: 0;
+  position: relative;
+}
+
+.heroScene figcaption {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  gap: 4px 14px;
+  justify-content: space-between;
+  padding: 4px 4px 0;
+}
+
+.sceneLegend {
+  align-items: center;
+  color: var(--ink);
+  display: inline-flex;
+  font-weight: 760;
+  gap: 7px;
+}
+
+.sceneLegend i {
+  background: var(--orange);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgb(238 139 24 / 18%), 0 0 12px rgb(238 139 24 / 60%);
+  height: 8px;
+  width: 8px;
 }
 
 .headerActions {
@@ -85,8 +164,10 @@
 .todayCard,
 .todayDone {
   background:
-    radial-gradient(circle at 100% 0, var(--royal-700), transparent 18rem),
-    var(--royal-950);
+    radial-gradient(circle at 100% 0, rgb(255 255 255 / 22%), transparent 16rem),
+    radial-gradient(circle at 0 100%, rgb(238 139 24 / 22%), transparent 14rem),
+    var(--accent-grad);
+  box-shadow: var(--shadow-accent);
   border: 0;
   color: var(--surface);
   display: flex;
@@ -101,8 +182,9 @@
 
 .todayDone {
   background:
-    radial-gradient(circle at 100% 0, var(--brass-500), transparent 18rem),
-    var(--success);
+    radial-gradient(circle at 100% 0, rgb(255 255 255 / 22%), transparent 16rem),
+    linear-gradient(135deg, #2fb183, #19845f 60%, #136a4c);
+  box-shadow: 0 16px 40px rgb(25 132 95 / 24%);
 }
 
 .todayTop {
@@ -148,7 +230,8 @@
 }
 
 .todayContent h2 {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: clamp(27px, 6vw, 38px);
   letter-spacing: -0.035em;
   line-height: 1.08;
@@ -161,7 +244,8 @@
 }
 
 .ringNumber {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 26px;
 }
 
@@ -209,7 +293,8 @@
 }
 
 .todayFooter strong {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 24px;
   line-height: 1;
 }
@@ -223,7 +308,8 @@
   align-items: center;
   background: var(--brass-500);
   border-radius: var(--r-control);
-  color: var(--royal-975);
+  box-shadow: 0 8px 20px rgb(120 60 0 / 22%);
+  color: #2a1600;
   display: flex;
   font-size: 13px;
   font-weight: 850;
@@ -273,7 +359,8 @@
 
 .sectionHeading h2 {
   color: var(--ink-strong);
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 23px;
   letter-spacing: -0.025em;
 }
@@ -300,7 +387,8 @@
 
 .monthRingNumber {
   color: var(--ink-strong);
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 30px;
 }
 
@@ -660,6 +748,10 @@
     display: inline-flex;
   }
 
+  .hero {
+    padding: 28px 28px 18px;
+  }
+
   .dashboardGrid {
     grid-template-areas:
       'today month'
@@ -677,6 +769,18 @@
 }
 
 @media (min-width: 1180px) {
+  .hero {
+    align-items: end;
+    column-gap: 28px;
+    grid-template-areas: 'text scene' 'bottom bottom';
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    padding: 30px 30px 24px 36px;
+  }
+
+  .heroText {
+    align-self: center;
+  }
+
   .dashboardGrid {
     grid-template-areas:
       'today today month month'

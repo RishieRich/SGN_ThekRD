@@ -51,7 +51,8 @@
 .display[data-size='lg'],
 .readOnly[data-size='lg'],
 .editing[data-size='lg'] input {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 26px;
   font-weight: 600;
   letter-spacing: -0.02em;

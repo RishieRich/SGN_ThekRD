@@ -1,31 +1,52 @@
+/*
+ * ARQ Thekedar · light lavender theme.
+ * Violet-indigo primary on airy lavender surfaces, deep ink text, and the ARQ logo orange as a sparing accent.
+ * Token names are kept from the first theme so every module re-themes from here.
+ */
 :root {
-  --royal-975: #211028;
-  --royal-950: #2b1233;
-  --royal-900: #36173f;
-  --royal-800: #4b2058;
-  --royal-700: #642c72;
-  --royal-600: #7b3f88;
-  --royal-100: #efe6f2;
-  --brass-500: #cf9f48;
-  --brass-300: #ebcf94;
-  --brass-100: #f8eedb;
-  --saffron-400: #e9963a;
-  --porcelain: #f7f4ef;
-  --canvas: #f2eff3;
+  /* Primary violet scale (named "royal" for continuity) */
+  --royal-975: #1c1842;
+  --royal-950: #4a3fd0;
+  --royal-900: #3d33b0;
+  --royal-800: #352c8f;
+  --royal-700: #5848dc;
+  --royal-600: #7062ee;
+  --royal-500: #8e83f5;
+  --royal-300: #c7c0fb;
+  --royal-200: #ddd8fd;
+  --royal-100: #eeebfe;
+  --royal-50: #f7f5ff;
+
+  /* ARQ orange accent (named "brass" for continuity) */
+  --brass-500: #ee8b18;
+  --brass-300: #ffcf94;
+  --brass-100: #fff3e3;
+  --saffron-400: #f59a2c;
+  --orange: #ee8b18;
+  --orange-soft: #fff1df;
+
+  --porcelain: #f7f6fd;
+  --canvas: #f3f1fb;
   --surface: #ffffff;
-  --surface-soft: #f7f4f8;
-  --ink: #28222b;
-  --ink-strong: #1e1921;
-  --muted: #6f6873;
-  --muted-light: #918998;
-  --line: #ddd7df;
-  --line-strong: #c9c0cb;
-  --success: #2f7666;
-  --success-soft: #e3f1ed;
-  --warning: #ad6b25;
-  --warning-soft: #f7ead9;
-  --danger: #b4434e;
-  --danger-soft: #f6e1e3;
+  --surface-soft: #f7f6fc;
+  --glass: rgb(255 255 255 / 70%);
+  --glass-strong: rgb(255 255 255 / 86%);
+  --glass-line: rgb(255 255 255 / 90%);
+
+  --ink: #26223f;
+  --ink-strong: #17142e;
+  --muted: #67638a;
+  --muted-light: #9a96b6;
+  --line: #e7e4f4;
+  --line-strong: #d4cfeb;
+
+  --success: #19845f;
+  --success-soft: #e3f5ed;
+  --warning: #b5650f;
+  --warning-soft: #fdf0de;
+  --danger: #cf3f57;
+  --danger-soft: #fde7eb;
+
   /* Company identity colours, validated for colour-blind separation (dataviz validator, all pairs). */
   --chart-1: #8a3f9e;
   --chart-2: #d9a21b;
@@ -43,31 +64,37 @@
   --chart-3-ink: #0d6b54;
   --chart-4-ink: #a73c28;
   --chart-5-ink: #2f62b0;
-  --grid: #ebe6ed;
-  --axis-text: #8a8290;
+  --grid: #ece9f6;
+  --axis-text: #8f8bab;
+
   --white-08: rgb(255 255 255 / 8%);
-  --white-12: rgb(255 255 255 / 12%);
-  --white-72: rgb(255 255 255 / 72%);
-  --white-88: rgb(255 255 255 / 88%);
-  --royal-glow: rgb(100 44 114 / 18%);
-  --royal-shadow: rgb(33 16 40 / 10%);
-  --backdrop: rgb(33 16 40 / 48%);
+  --white-12: rgb(255 255 255 / 16%);
+  --white-72: rgb(255 255 255 / 78%);
+  --white-88: rgb(255 255 255 / 80%);
+  --royal-glow: rgb(91 78 230 / 24%);
+  --royal-shadow: rgb(40 30 120 / 10%);
+  --backdrop: rgb(23 20 46 / 34%);
+
+  --accent-grad: linear-gradient(135deg, #8d82f8 0%, #6355ea 52%, #4a3fd0 100%);
+  --accent-grad-soft: linear-gradient(135deg, #f6f4ff 0%, #ece8ff 48%, #fbf4ff 100%);
+  --shadow-accent: 0 10px 26px rgb(91 78 230 / 28%);
+
   --r-control: 12px;
-  --r-card: 18px;
-  --r-hero: 26px;
+  --r-card: 20px;
+  --r-hero: 28px;
   --r-pill: 999px;
-  --shadow-card: 0 1px 2px rgb(33 16 40 / 6%), 0 8px 24px rgb(33 16 40 / 6%);
-  --shadow-raised: 0 18px 55px rgb(33 16 40 / 12%);
+  --shadow-card: 0 1px 2px rgb(40 30 120 / 4%), 0 10px 30px rgb(60 45 160 / 6%);
+  --shadow-raised: 0 22px 60px rgb(40 30 120 / 16%);
   --content-max: 1280px;
   --spring: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 [data-theme='dark'] {
-  --canvas: #1b1020;
-  --surface: #26162c;
-  --surface-soft: #2f1c36;
-  --ink: #efe9f1;
+  --canvas: #15122b;
+  --surface: #1f1b3d;
+  --surface-soft: #262149;
+  --ink: #ecebf7;
   --ink-strong: #ffffff;
-  --muted: #b3a8b8;
-  --line: #3d2a44;
+  --muted: #b1adcc;
+  --line: #322c5c;
 }

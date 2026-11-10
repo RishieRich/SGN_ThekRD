@@ -1,13 +1,19 @@
 'use client';
 
-import {AlertCircle, Bell, ClipboardCheck, Home, LogOut, MessageCircle, Mic, Users} from 'lucide-react';
+import {AlertCircle, Bell, ClipboardCheck, Home, LogOut, MessageCircle, Sparkles, Users} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
+import {AmbientBackdrop} from '@/components/ambient/AmbientBackdrop';
+import {ParticleOrb} from '@/components/ambient/ParticleOrb';
+import {SiteScene} from '@/components/ambient/SiteScene';
+import {AssistantPanel} from '@/components/assistant/AssistantPanel';
 import {LogoMark} from '@/components/brand/LogoMark';
 import {RemindersPanel} from '@/components/reminders/RemindersPanel';
 import {LanguageSwitch} from '@/components/ui/LanguageSwitch';
 import {Toaster} from '@/components/ui/Toaster';
+import {companies} from '@/data/sample-data';
+import {todayTotals} from '@/domain/attendance';
 import {reminderBuckets} from '@/domain/reminders';
 import {formatTime} from '@/lib/format';
 import {useApp} from '@/providers/AppProvider';
@@ -40,10 +46,14 @@ export function AppShell({children}: {children: React.ReactNode}) {
   const common = useTranslations('common');
   const login = useTranslations('login');
   const reminders = useTranslations('reminders');
-  const {user, locale, setLocale, hydrated, now, reminders: reminderItems, setRemindersOpen, attendance} = useApp();
+  const assistantT = useTranslations('assistant');
+  const scene = useTranslations('scene');
+  const {user, locale, setLocale, hydrated, now, reminders: reminderItems, setRemindersOpen, attendance, workers, openAssistant, assistant} = useApp();
   const buckets = reminderBuckets(reminderItems, now);
   const dueCount = buckets.overdue.length;
   const openCount = dueCount + buckets.today.length;
+  const totals = todayTotals(workers, attendance, companies);
+  const done = attendance.confirmedCompanyIds.length;
 
   async function logout() {
     await fetch('/api/auth/logout', {method: 'POST'});
@@ -53,6 +63,8 @@ export function AppShell({children}: {children: React.ReactNode}) {
 
   return (
     <div className={styles.shell}>
+      <AmbientBackdrop />
+
       <aside className={styles.rail}>
         <Link className={styles.desktopLogo} href="/home">
           <LogoMark />
@@ -63,14 +75,33 @@ export function AppShell({children}: {children: React.ReactNode}) {
             const active = pathname.startsWith(item.href);
             const showDot = item.href === '/hajri' && hydrated && !attendance.allConfirmed;
             return (
-              <Link className={active ? styles.navActive : styles.navLink} href={item.href} key={item.href}>
-                <Icon size={21} strokeWidth={1.75} />
+              <Link aria-current={active ? 'page' : undefined} className={active ? styles.navActive : styles.navLink} href={item.href} key={item.href}>
+                <span className={styles.navIcon}><Icon size={19} strokeWidth={1.9} /></span>
                 <span>{nav(item.key)}</span>
                 {showDot && <i aria-label={common('pending')} className={styles.navDot} />}
               </Link>
             );
           })}
         </nav>
+
+        <button className={styles.askButton} onClick={() => openAssistant('type')} type="button">
+          <ParticleOrb size={38} state={assistant.open ? 'thinking' : 'idle'} />
+          <span>
+            <strong>{assistantT('title')}</strong>
+            <small>{assistantT('railHint')}</small>
+          </span>
+        </button>
+
+        {hydrated && (
+          <div className={styles.siteCard}>
+            <div className={styles.siteHead}>
+              <span><i className={styles.liveDot} aria-hidden="true" />{scene('siteTitle')}</span>
+              <small>{scene('siteLine', {present: totals.present, done, total: companies.length})}</small>
+            </div>
+            <SiteScene companies={companies} label={scene('label', {done, total: companies.length})} litIds={attendance.confirmedCompanyIds} variant="compact" />
+          </div>
+        )}
+
         <div className={styles.railProfile}>
           <span className={styles.avatar}>{user.initials}</span>
           <span className={styles.profileText}>
@@ -86,7 +117,7 @@ export function AppShell({children}: {children: React.ReactNode}) {
       <div className={styles.mainColumn}>
         <header className={styles.topbar}>
           <Link className={styles.mobileLogo} href="/home">
-            <LogoMark compact />
+            <LogoMark compact size="sm" />
           </Link>
           <div className={styles.tenant}>
             <span>Rajesh Desai</span>
@@ -95,6 +126,9 @@ export function AppShell({children}: {children: React.ReactNode}) {
               {common('localPreview')}
             </small>
           </div>
+          <button className={styles.askPill} onClick={() => openAssistant('type')} type="button">
+            <Sparkles size={16} /> {assistantT('open')}
+          </button>
           <button
             aria-label={reminders('bellLabel', {count: openCount})}
             className={styles.bell}
@@ -121,26 +155,28 @@ export function AppShell({children}: {children: React.ReactNode}) {
         <main className={styles.content}>{hydrated ? children : <PageSkeleton />}</main>
       </div>
 
-      {pathname !== '/pucho' && (
-        <Link aria-label={nav('ask')} className={styles.globalMic} href="/pucho">
-          <Mic size={23} strokeWidth={1.9} />
-        </Link>
-      )}
+      <button aria-label={assistantT('open')} className={styles.globalAsk} onClick={() => openAssistant('type')} type="button">
+        <ParticleOrb size={44} state={assistant.open ? 'thinking' : 'idle'} />
+      </button>
 
+      {/* On phones the centre button is the assistant (it answers questions too), so "Ask" moves into it. */}
       <nav className={styles.mobileNav}>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = pathname.startsWith(item.href);
-          return (
-            <Link className={active ? styles.mobileNavActive : styles.mobileNavLink} href={item.href} key={item.href}>
-              <Icon size={21} strokeWidth={active ? 2.1 : 1.75} />
-              <span>{nav(item.key)}</span>
-            </Link>
-          );
-        })}
+        {navItems
+          .filter((item) => item.key !== 'ask')
+          .map((item) => {
+            const Icon = item.icon;
+            const active = pathname.startsWith(item.href);
+            return (
+              <Link className={active ? styles.mobileNavActive : styles.mobileNavLink} href={item.href} key={item.href}>
+                <Icon size={21} strokeWidth={active ? 2.1 : 1.75} />
+                <span>{nav(item.key)}</span>
+              </Link>
+            );
+          })}
       </nav>
 
       {hydrated && <RemindersPanel />}
+      {hydrated && <AssistantPanel />}
       <Toaster />
     </div>
   );

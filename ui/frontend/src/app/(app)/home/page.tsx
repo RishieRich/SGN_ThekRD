@@ -20,6 +20,8 @@ import {motion} from 'motion/react';
 import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
+import {SiteScene} from '@/components/ambient/SiteScene';
+import {InputBar} from '@/components/assistant/InputBar';
 import {BarList} from '@/components/charts/BarList';
 import {Ring} from '@/components/charts/Ring';
 import {TrendChart, type TrendPoint} from '@/components/charts/TrendChart';
@@ -51,6 +53,7 @@ const levelIcon = {ok: CheckCircle2, warning: AlertTriangle, danger: AlertTriang
 export default function HomePage() {
   const t = useTranslations('home');
   const common = useTranslations('common');
+  const scene = useTranslations('scene');
   const router = useRouter();
   const {user, locale, attendance, workers, history, month, todayISO, now, reminders, setRemindersOpen} = useApp();
   const suggestions = useSuggestions();
@@ -89,19 +92,43 @@ export default function HomePage() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.pageHeader}>
-        <div>
-          <span className={styles.date}>{today}</span>
-          <h1>{t('greeting', {name: user.name.split(' ')[0]})}</h1>
-          <p>{subtitle}</p>
+      <section className={styles.hero}>
+        <div className={styles.heroText}>
+          <motion.span className={styles.date} {...rise(0)}>{today}</motion.span>
+          <h1 aria-label={t('greeting', {name: user.name.split(' ')[0]})}>
+            {t('greeting', {name: user.name.split(' ')[0]}).split(' ').map((word, index) => (
+              <motion.span
+                animate={{opacity: 1, y: 0, filter: 'blur(0px)'}}
+                aria-hidden="true"
+                initial={{opacity: 0, y: 14, filter: 'blur(6px)'}}
+                key={`${word}-${index}`}
+                transition={{duration: 0.45, delay: 0.06 + index * 0.07, ease: [0.22, 1, 0.36, 1]}}
+              >
+                {word}{' '}
+              </motion.span>
+            ))}
+          </h1>
+          <motion.p {...rise(0.18)}>{subtitle}</motion.p>
         </div>
-        <div className={styles.headerActions}>
-          <Pill tone="royal"><Flame size={13} /> {t('streak', {days: streak})}</Pill>
-          <button className={styles.listenAll} onClick={() => speakInBrowser(suggestions.filter((item) => item.audience === 'owner').slice(0, 5).map(renderSuggestion).join('. '), locale)} type="button">
-            <Speaker size={18} /> {t('listenAll')}
-          </button>
-        </div>
-      </header>
+        <motion.div className={styles.heroBottom} {...rise(0.26)}>
+          <div className={styles.heroBar}>
+            <InputBar excelKind="attendance" tone="glass" />
+          </div>
+          <div className={styles.headerActions}>
+            <Pill tone="royal"><Flame size={13} /> {t('streak', {days: streak})}</Pill>
+            <button className={styles.listenAll} onClick={() => speakInBrowser(suggestions.filter((item) => item.audience === 'owner').slice(0, 5).map(renderSuggestion).join('. '), locale)} type="button">
+              <Speaker size={16} /> {t('listenAll')}
+            </button>
+          </div>
+        </motion.div>
+        <motion.figure animate={{opacity: 1, scale: 1}} className={styles.heroScene} initial={{opacity: 0, scale: 0.98}} transition={{duration: 0.6, delay: 0.1}}>
+          <SiteScene companies={companies} label={scene('label', {done: confirmedCompanies, total: companies.length})} litIds={attendance.confirmedCompanyIds} />
+          <figcaption>
+            <span className={styles.sceneLegend}><i data-lit="true" />{scene('lit', {done: confirmedCompanies, total: companies.length})}</span>
+            <span>{scene('heroCaption')}</span>
+          </figcaption>
+        </motion.figure>
+      </section>
 
       <section className={styles.dashboardGrid}>
         <motion.div className={styles.todayArea} {...rise(0)}>

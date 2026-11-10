@@ -1,19 +1,24 @@
 .page {
-  background: var(--porcelain);
+  background: var(--canvas);
   display: grid;
   min-height: 100vh;
+  position: relative;
 }
 
 .brandPanel {
   background:
-    radial-gradient(circle at 80% 18%, var(--royal-700), transparent 22rem),
-    var(--royal-975);
-  color: var(--surface);
+    radial-gradient(circle at 78% 22%, rgb(142 131 245 / 34%), transparent 22rem),
+    radial-gradient(circle at 10% 92%, rgb(255 207 148 / 40%), transparent 20rem),
+    linear-gradient(160deg, #fbfaff 0%, #efecfe 55%, #e6e1fd 100%);
+  border-right: 1px solid rgb(255 255 255 / 90%);
+  box-shadow: 1px 0 0 var(--line);
+  color: var(--ink-strong);
   display: none;
   min-height: 100vh;
   overflow: hidden;
-  padding: 42px 54px;
+  padding: 40px 52px 0;
   position: relative;
+  z-index: 1;
 }
 
 .brandTop,
@@ -23,30 +28,51 @@
 }
 
 .brandStory {
-  align-self: center;
-  max-width: 540px;
+  align-self: flex-start;
+  margin: auto 0;
+  max-width: 560px;
+  padding: 24px 0;
+}
+
+.brandOrb {
+  margin: 0 0 10px -18px;
+  width: fit-content;
 }
 
 .brandStory h1 {
-  font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(54px, 6vw, 84px);
-  letter-spacing: -0.05em;
-  line-height: 0.95;
-  margin: 22px 0;
+  color: var(--ink-strong);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(50px, 5.4vw, 78px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  margin: 18px 0 18px;
+}
+
+.brandStory h1 span {
+  display: inline-block;
+  white-space: pre;
+}
+
+.brandStory h1 span:last-child {
+  background: linear-gradient(120deg, var(--royal-700), var(--royal-950) 55%, #e07a10);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .brandStory p {
-  color: var(--white-72);
+  color: var(--muted);
   font-size: 18px;
   max-width: 480px;
 }
 
 .eyebrow {
   align-items: center;
-  color: var(--brass-300);
+  color: var(--royal-700);
   display: inline-flex;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12.5px;
+  font-weight: 820;
   gap: 7px;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -55,39 +81,39 @@
 .promiseList {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 36px;
+  gap: 10px;
+  margin-top: 30px;
 }
 
 .promiseList span {
   align-items: center;
-  background: var(--white-08);
-  border: 1px solid var(--white-12);
+  backdrop-filter: blur(8px);
+  background: rgb(255 255 255 / 72%);
+  border: 1px solid rgb(255 255 255 / 95%);
   border-radius: var(--r-pill);
+  box-shadow: 0 4px 14px rgb(91 78 230 / 8%);
+  color: var(--ink);
   display: inline-flex;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 720;
   gap: 7px;
   min-height: 38px;
   padding: 0 14px;
 }
 
 .promiseList svg {
-  color: var(--brass-300);
+  color: var(--royal-700);
 }
 
-.weave {
-  background-image:
-    linear-gradient(45deg, transparent 48%, var(--white-08) 49%, var(--white-08) 51%, transparent 52%),
-    linear-gradient(-45deg, transparent 48%, var(--white-08) 49%, var(--white-08) 51%, transparent 52%);
-  background-size: 34px 34px;
-  bottom: -30px;
-  height: 260px;
-  left: -20px;
-  mask-image: linear-gradient(to top, var(--ink-strong), transparent);
-  opacity: 0.65;
-  position: absolute;
-  right: -20px;
+.brandScene {
+  margin: 0 -52px;
+  position: relative;
+  z-index: 1;
+}
+
+.mobileLogo {
+  display: inline-flex;
+  margin-right: auto;
 }
 
 .loginPanel {
@@ -96,11 +122,14 @@
   flex-direction: column;
   min-height: 100vh;
   padding: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .loginTopbar {
   align-items: center;
   display: flex;
+  gap: 12px;
   justify-content: flex-end;
   max-width: 520px;
   width: 100%;
@@ -125,7 +154,8 @@
 
 .loginCard h2 {
   color: var(--ink-strong);
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: clamp(34px, 8vw, 48px);
   letter-spacing: -0.035em;
   line-height: 1.05;
@@ -159,7 +189,7 @@
 }
 
 .userCard:hover {
-  border-color: var(--brass-500);
+  border-color: var(--royal-300);
   box-shadow: var(--shadow-raised);
   transform: translateY(-2px);
 }
@@ -253,8 +283,8 @@
 }
 
 .pinDotFilled {
-  background: var(--brass-500);
-  border-color: var(--brass-500);
+  background: var(--royal-700);
+  border-color: var(--royal-700);
   transform: scale(1.08);
 }
 
@@ -288,7 +318,8 @@
   border-radius: 14px;
   cursor: pointer;
   display: flex;
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 760;
   font-size: 24px;
   height: 58px;
   justify-content: center;
@@ -326,6 +357,10 @@
   .brandPanel {
     display: flex;
     flex-direction: column;
+  }
+
+  .mobileLogo {
+    display: none;
   }
 
   .loginPanel {

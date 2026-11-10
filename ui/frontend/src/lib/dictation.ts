@@ -5,7 +5,7 @@ import type {Locale} from '@/types';
 import {intlLocale} from './format';
 
 interface RecognitionResultEvent {
-  results: ArrayLike<ArrayLike<{transcript: string}>>;
+  results: ArrayLike<ArrayLike<{transcript: string}> & {isFinal?: boolean}>;
 }
 
 interface Recognition {
@@ -35,15 +35,17 @@ const getServerSupport = () => false;
  * Browser dictation (no AI key needed). Hidden when the browser has no speech recognition.
  * The final transcript is passed to `onText`.
  */
-export function useDictation(locale: Locale, onText: (text: string) => void) {
+export function useDictation(locale: Locale, onText: (text: string) => void, options: {onInterim?: (text: string) => void} = {}) {
   const supported = useSyncExternalStore(subscribeToBrowserSupport, getBrowserSupport, getServerSupport);
   const [listening, setListening] = useState(false);
   const recognition = useRef<Recognition | null>(null);
   const callback = useRef(onText);
+  const interim = useRef(options.onInterim);
 
   useEffect(() => {
     callback.current = onText;
-  }, [onText]);
+    interim.current = options.onInterim;
+  }, [onText, options.onInterim]);
 
   useEffect(() => {
     return () => {
@@ -62,14 +64,18 @@ export function useDictation(locale: Locale, onText: (text: string) => void) {
     recognition.current?.stop();
     const instance = new Constructor();
     instance.lang = intlLocale[locale];
-    instance.interimResults = false;
+    instance.interimResults = Boolean(interim.current);
     instance.continuous = false;
     instance.onresult = (event) => {
-      const text = Array.from(event.results)
+      const results = Array.from(event.results);
+      const text = results
         .map((result) => result[0]?.transcript ?? '')
         .join(' ')
         .trim();
-      if (text) callback.current(text);
+      if (!text) return;
+      // Live captions while speaking; the final sentence goes to onText.
+      if (results.every((result) => result.isFinal !== false)) callback.current(text);
+      else interim.current?.(text);
     };
     instance.onend = () => setListening(false);
     instance.onerror = () => setListening(false);
