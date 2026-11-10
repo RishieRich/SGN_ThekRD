@@ -1,0 +1,258 @@
+.page {
+  margin: 0 auto;
+  max-width: 860px;
+  width: 100%;
+}
+
+.pageHeader {
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.pageHeader > div > span {
+  color: var(--warning);
+  display: block;
+  font-size: 12px;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.pageHeader h1 {
+  color: var(--ink-strong);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(34px, 7vw, 50px);
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.pageHeader p {
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.connectionCard {
+  align-items: center;
+  background: var(--brass-100);
+  border-color: var(--brass-300);
+  display: flex;
+  gap: 13px;
+  margin-bottom: 16px;
+  padding: 15px;
+}
+
+.connectionCard > span {
+  align-items: center;
+  background: var(--surface);
+  border-radius: 12px;
+  color: var(--warning);
+  display: flex;
+  flex: 0 0 auto;
+  height: 43px;
+  justify-content: center;
+  width: 43px;
+}
+
+.connectionCard h2 {
+  color: var(--royal-950);
+  font-size: 14px;
+}
+
+.connectionCard p {
+  color: var(--royal-800);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.chatWindow {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-hero);
+  box-shadow: var(--shadow-card);
+  min-height: 470px;
+  padding: 20px;
+}
+
+.botIntro,
+.userBubble {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.botIntro > span,
+.botIcon {
+  align-items: center;
+  background: var(--royal-950);
+  border-radius: 12px;
+  color: var(--brass-300);
+  display: flex;
+  flex: 0 0 auto;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.botIntro strong {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 18px;
+}
+
+.botIntro p {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 22px 0;
+}
+
+.suggestions button {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  color: var(--royal-700);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  min-height: 38px;
+  padding: 7px 13px;
+}
+
+.suggestions button:hover {
+  background: var(--royal-100);
+  border-color: var(--royal-600);
+}
+
+.exchange {
+  display: grid;
+  gap: 12px;
+}
+
+.userBubble {
+  align-self: end;
+  background: var(--royal-950);
+  border-radius: 16px 16px 4px 16px;
+  color: var(--surface);
+  justify-self: end;
+  max-width: 78%;
+  padding: 11px 14px;
+}
+
+.userBubble > span {
+  align-items: center;
+  background: var(--white-12);
+  border-radius: 50%;
+  display: flex;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.userBubble p {
+  font-size: 12px;
+}
+
+.answerCard {
+  align-items: flex-start;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 16px 16px 16px 4px;
+  display: grid;
+  gap: 11px;
+  grid-template-columns: auto 1fr auto;
+  max-width: 88%;
+  padding: 13px;
+}
+
+.answerCard .botIcon {
+  border-radius: 10px;
+  height: 34px;
+  width: 34px;
+}
+
+.answerCard p {
+  font-size: 13px;
+}
+
+.answerCard small {
+  color: var(--muted);
+  display: block;
+  font-size: 9px;
+  margin-top: 6px;
+}
+
+.answerCard > button {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--royal-700);
+  cursor: pointer;
+  display: flex;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.composer {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  bottom: 82px;
+  box-shadow: var(--shadow-raised);
+  display: flex;
+  gap: 8px;
+  left: 16px;
+  min-height: 60px;
+  padding: 6px;
+  position: fixed;
+  right: 16px;
+  z-index: 14;
+}
+
+.composer input {
+  background: transparent;
+  border: 0;
+  flex: 1;
+  min-width: 0;
+  outline: 0;
+  padding: 0 8px;
+}
+
+.composer button {
+  align-items: center;
+  background: var(--surface-soft);
+  border-radius: 11px;
+  color: var(--royal-700);
+  cursor: pointer;
+  display: flex;
+  height: 45px;
+  justify-content: center;
+  width: 45px;
+}
+
+.composer button:last-child {
+  background: var(--royal-950);
+  color: var(--brass-300);
+}
+
+@media (min-width: 1024px) {
+  .composer {
+    bottom: 28px;
+    left: calc(244px + 50%);
+    max-width: 760px;
+    right: auto;
+    transform: translateX(-50%);
+    width: calc(100% - 300px);
+  }
+}

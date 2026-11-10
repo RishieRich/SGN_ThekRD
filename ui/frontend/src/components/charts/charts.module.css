@@ -1,0 +1,496 @@
+.srOnly {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+/* Company colour mapping, shared by every chart mark. */
+.swatch[data-color='1'],
+.barFill[data-color='1'],
+.ringFill[data-color='1'],
+.sparkLine[data-color='1'],
+.sparkDot[data-color='1'],
+.segment[data-color='1'] {
+  --mark: var(--chart-1);
+}
+
+.swatch[data-color='2'],
+.barFill[data-color='2'],
+.ringFill[data-color='2'],
+.sparkLine[data-color='2'],
+.sparkDot[data-color='2'],
+.segment[data-color='2'] {
+  --mark: var(--chart-2);
+}
+
+.swatch[data-color='3'],
+.barFill[data-color='3'],
+.ringFill[data-color='3'],
+.sparkLine[data-color='3'],
+.sparkDot[data-color='3'],
+.segment[data-color='3'] {
+  --mark: var(--chart-3);
+}
+
+.swatch[data-color='4'],
+.barFill[data-color='4'],
+.ringFill[data-color='4'],
+.sparkLine[data-color='4'],
+.sparkDot[data-color='4'],
+.segment[data-color='4'] {
+  --mark: var(--chart-4);
+}
+
+.swatch[data-color='5'],
+.barFill[data-color='5'],
+.ringFill[data-color='5'],
+.sparkLine[data-color='5'],
+.sparkDot[data-color='5'],
+.segment[data-color='5'] {
+  --mark: var(--chart-5);
+}
+
+.swatch {
+  background: var(--mark, var(--chart-6));
+  border-radius: 3px;
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 10px;
+  width: 10px;
+}
+
+/* Trend chart */
+.trend {
+  position: relative;
+  width: 100%;
+}
+
+.trendSvg {
+  display: block;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+.legend {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  gap: 6px 16px;
+  margin-bottom: 8px;
+}
+
+.legend span {
+  align-items: center;
+  display: inline-flex;
+  gap: 7px;
+}
+
+.keyLine,
+.keyReference,
+.keyDraft {
+  display: inline-block;
+}
+
+.keyLine {
+  background: var(--royal-700);
+  border-radius: 2px;
+  height: 3px;
+  width: 16px;
+}
+
+.keyReference {
+  border-top: 2px dashed var(--line-strong);
+  width: 16px;
+}
+
+.keyDraft {
+  border: 2px solid var(--brass-500);
+  border-radius: 50%;
+  height: 10px;
+  width: 10px;
+}
+
+.grid {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+
+.axisText {
+  fill: var(--axis-text);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.line {
+  fill: none;
+  stroke: var(--royal-700);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.reference {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-dasharray: 4 4;
+  stroke-width: 1.5;
+}
+
+.endDot {
+  fill: var(--royal-700);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.draftDot {
+  fill: var(--surface);
+  stroke: var(--brass-500);
+  stroke-width: 2.5;
+}
+
+.crosshair {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.tooltip {
+  background: var(--royal-975);
+  border-radius: 10px;
+  box-shadow: var(--shadow-raised);
+  color: var(--surface);
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  gap: 2px;
+  min-width: 140px;
+  padding: 8px 11px;
+  pointer-events: none;
+  position: absolute;
+  top: 30px;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.tooltip small {
+  color: var(--white-72);
+  font-size: 11px;
+}
+
+.tooltip strong {
+  font-size: 16px;
+}
+
+.tooltip strong span,
+.tooltip > span {
+  color: var(--white-72);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Bar list */
+.barList {
+  display: grid;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.barRow {
+  background: transparent;
+  border-radius: 12px;
+  color: inherit;
+  display: grid;
+  gap: 6px;
+  padding: 8px 8px;
+  text-align: left;
+  width: 100%;
+}
+
+button.barRow {
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+button.barRow:hover,
+button.barRow:focus-visible {
+  background: var(--surface-soft);
+}
+
+.barLabel {
+  align-items: center;
+  display: flex;
+  font-size: 13px;
+  gap: 8px;
+  min-width: 0;
+}
+
+.barLabel strong {
+  flex: 1;
+  font-weight: 700;
+  min-width: 0;
+}
+
+.barValue {
+  color: var(--ink-strong);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.barTrack {
+  background: var(--surface-soft);
+  border-radius: 4px;
+  display: block;
+  height: 10px;
+  overflow: hidden;
+}
+
+.barFill {
+  animation: growBar 700ms var(--spring) both;
+  background: var(--mark, var(--chart-6));
+  border-radius: 0 4px 4px 0;
+  display: block;
+  height: 100%;
+  transform-origin: left center;
+}
+
+.barDetail {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@keyframes growBar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Ring */
+.ring {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  position: relative;
+}
+
+.ring svg {
+  inset: 0;
+  position: absolute;
+}
+
+.ringTrack {
+  fill: none;
+  stroke: var(--brass-100);
+}
+
+.ringTrack[data-tone='royal'] { stroke: var(--royal-100); }
+.ringTrack[data-tone='success'] { stroke: var(--success-soft); }
+.ringTrack[data-tone='warning'] { stroke: var(--warning-soft); }
+.ringTrack[data-tone='danger'] { stroke: var(--danger-soft); }
+.ringTrack[data-tone='light'] { stroke: var(--white-12); }
+
+.ringFill {
+  fill: none;
+  stroke: var(--mark, var(--brass-500));
+  stroke-linecap: round;
+  transition: stroke-dashoffset 800ms var(--spring);
+}
+
+.ringFill[data-tone='royal'] { stroke: var(--royal-700); }
+.ringFill[data-tone='success'] { stroke: var(--success); }
+.ringFill[data-tone='warning'] { stroke: var(--warning); }
+.ringFill[data-tone='danger'] { stroke: var(--danger); }
+.ringFill[data-tone='light'] { stroke: var(--brass-300); }
+
+.ringCenter {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.05;
+  position: relative;
+  text-align: center;
+}
+
+/* Sparkline */
+.sparkline {
+  display: block;
+  overflow: visible;
+}
+
+.sparkBase {
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+
+.sparkLine {
+  fill: none;
+  stroke: var(--mark, var(--royal-700));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.sparkDot {
+  fill: var(--mark, var(--royal-700));
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+/* Segment bar */
+.segmentWrap {
+  display: grid;
+  gap: 12px;
+}
+
+.segmentBar {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+}
+
+.segment {
+  background: var(--mark, var(--chart-6));
+  border-radius: 4px;
+  min-width: 4px;
+  transition: opacity 160ms ease;
+}
+
+.segment:first-child { border-radius: 999px 4px 4px 999px; }
+.segment:last-child { border-radius: 4px 999px 999px 4px; }
+.segment[data-dim='true'] { opacity: 0.25; }
+
+.segmentLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.segmentLegend > button,
+.segmentLegend > span {
+  align-items: center;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  display: inline-flex;
+  font-size: 12px;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 11px;
+}
+
+.segmentLegend > button {
+  cursor: pointer;
+}
+
+.segmentLegend > button[aria-pressed='true'] {
+  background: var(--surface);
+  border-color: var(--royal-700);
+  box-shadow: 0 0 0 2px var(--royal-100);
+}
+
+.segmentLegend strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Calendar heat map */
+.calendar {
+  display: grid;
+  gap: 12px;
+}
+
+.calendarGrid {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.weekday {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.calendarEmpty {
+  aspect-ratio: 1;
+}
+
+.calendarCell {
+  align-items: center;
+  aspect-ratio: 1;
+  background: var(--surface-soft);
+  border-radius: 7px;
+  color: var(--muted);
+  display: flex;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  justify-content: center;
+  max-height: 40px;
+}
+
+.calendarCell[data-status='present'] {
+  background: var(--success);
+  color: #fff;
+}
+
+.calendarCell[data-status='absent'] {
+  background:
+    repeating-linear-gradient(45deg, rgb(255 255 255 / 22%) 0 2px, transparent 2px 6px),
+    var(--danger);
+  color: #fff;
+}
+
+.calendarCell[data-status='off'] {
+  background: var(--surface-soft);
+  color: var(--muted-light);
+}
+
+.calendarCell[data-today='true'] {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--brass-500);
+}
+
+.calendarLegend {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 6px 14px;
+}
+
+.calendarLegend span {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.calendarLegend i {
+  align-items: center;
+  background: var(--surface-soft);
+  border-radius: 4px;
+  color: var(--muted);
+  display: inline-flex;
+  height: 14px;
+  justify-content: center;
+  width: 14px;
+}
+
+.calendarLegend i[data-status='present'] { background: var(--success); color: #fff; }
+.calendarLegend i[data-status='absent'] { background: var(--danger); color: #fff; }
+.calendarLegend i[data-today='true'] { background: var(--surface); box-shadow: inset 0 0 0 2px var(--brass-500); }
+
+@media (prefers-reduced-motion: reduce) {
+  .barFill { animation: none; }
+}

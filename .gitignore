@@ -1,0 +1,20 @@
+**/node_modules/
+**/.next/
+**/out/
+**/coverage/
+**/*.tsbuildinfo
+**/.env
+**/.env.local
+**/.env.*.local
+**/*.log
+.DS_Store
+
+# Local reference captures and generated image previews
+temp_images/
+**/temp_images/
+**/temp-images/
+**/.tmp-images/
+**/*.tmp.png
+**/*.tmp.jpg
+**/*.tmp.jpeg
+**/*.tmp.webp

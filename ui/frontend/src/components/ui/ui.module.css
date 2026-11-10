@@ -1,0 +1,113 @@
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+}
+
+.languageSwitch {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  gap: 2px;
+  min-height: 44px;
+  padding: 4px 5px 4px 10px;
+}
+
+.languageButton,
+.languageActive {
+  align-items: center;
+  background: transparent;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 750;
+  height: 34px;
+  justify-content: center;
+  min-width: 35px;
+  padding: 0 8px;
+}
+
+.languageButton {
+  color: var(--muted);
+}
+
+.languageActive {
+  background: var(--royal-950);
+  color: var(--surface);
+}
+
+.pill {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 750;
+  gap: 6px;
+  line-height: 1.25;
+  min-height: 28px;
+  padding: 5px 10px;
+}
+
+.pill_neutral {
+  background: var(--surface-soft);
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+.pill_success {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.pill_warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.pill_danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.pill_royal {
+  background: var(--royal-100);
+  color: var(--royal-700);
+}
+
+.progressTrack {
+  background: var(--surface-soft);
+  border-radius: var(--r-pill);
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progressFill {
+  background: var(--chart-1);
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transition: width 300ms ease;
+}
+
+.progressFill[data-color='2'] {
+  background: var(--chart-2);
+}
+
+.progressFill[data-color='3'] {
+  background: var(--chart-3);
+}
+
+.progressFill[data-color='4'] {
+  background: var(--chart-4);
+}
+
+.progressFill[data-color='5'] {
+  background: var(--chart-5);
+}

@@ -1,0 +1,334 @@
+.page {
+  background: var(--porcelain);
+  display: grid;
+  min-height: 100vh;
+}
+
+.brandPanel {
+  background:
+    radial-gradient(circle at 80% 18%, var(--royal-700), transparent 22rem),
+    var(--royal-975);
+  color: var(--surface);
+  display: none;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 42px 54px;
+  position: relative;
+}
+
+.brandTop,
+.brandStory {
+  position: relative;
+  z-index: 2;
+}
+
+.brandStory {
+  align-self: center;
+  max-width: 540px;
+}
+
+.brandStory h1 {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(54px, 6vw, 84px);
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+  margin: 22px 0;
+}
+
+.brandStory p {
+  color: var(--white-72);
+  font-size: 18px;
+  max-width: 480px;
+}
+
+.eyebrow {
+  align-items: center;
+  color: var(--brass-300);
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 7px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.promiseList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.promiseList span {
+  align-items: center;
+  background: var(--white-08);
+  border: 1px solid var(--white-12);
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 700;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 14px;
+}
+
+.promiseList svg {
+  color: var(--brass-300);
+}
+
+.weave {
+  background-image:
+    linear-gradient(45deg, transparent 48%, var(--white-08) 49%, var(--white-08) 51%, transparent 52%),
+    linear-gradient(-45deg, transparent 48%, var(--white-08) 49%, var(--white-08) 51%, transparent 52%);
+  background-size: 34px 34px;
+  bottom: -30px;
+  height: 260px;
+  left: -20px;
+  mask-image: linear-gradient(to top, var(--ink-strong), transparent);
+  opacity: 0.65;
+  position: absolute;
+  right: -20px;
+}
+
+.loginPanel {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.loginTopbar {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  max-width: 520px;
+  width: 100%;
+}
+
+.loginCard {
+  margin: auto 0;
+  max-width: 460px;
+  padding: 20px 0;
+  width: 100%;
+}
+
+.cardEyebrow {
+  color: var(--royal-700);
+  display: block;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.loginCard h2 {
+  color: var(--ink-strong);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(34px, 8vw, 48px);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  margin-bottom: 12px;
+}
+
+.loginCard > p {
+  color: var(--muted);
+}
+
+.userList {
+  display: grid;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.userCard {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  display: flex;
+  gap: 14px;
+  min-height: 78px;
+  padding: 12px 16px;
+  text-align: left;
+  transition: border 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  width: 100%;
+}
+
+.userCard:hover {
+  border-color: var(--brass-500);
+  box-shadow: var(--shadow-raised);
+  transform: translateY(-2px);
+}
+
+.userCard > svg {
+  color: var(--muted);
+}
+
+.userAvatar,
+.pinAvatar {
+  align-items: center;
+  background: var(--royal-100);
+  border-radius: 16px;
+  color: var(--royal-700);
+  display: flex;
+  flex: 0 0 auto;
+  font-size: 15px;
+  font-weight: 850;
+  height: 52px;
+  justify-content: center;
+  width: 52px;
+}
+
+.avatar2 {
+  background: var(--brass-100);
+  color: var(--warning);
+}
+
+.avatar3 {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.userInfo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.userInfo strong {
+  color: var(--ink-strong);
+  font-size: 16px;
+}
+
+.userInfo small,
+.pinIdentity small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.backButton {
+  align-items: center;
+  background: transparent;
+  color: var(--royal-700);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 8px;
+  margin-bottom: 26px;
+  padding: 0;
+}
+
+.pinIdentity {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.pinIdentity > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.pinDots {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin: 30px 0 12px;
+}
+
+.pinDot,
+.pinDotFilled {
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  display: block;
+  height: 15px;
+  transition: background 160ms ease, border 160ms ease, transform 160ms ease;
+  width: 15px;
+}
+
+.pinDotFilled {
+  background: var(--brass-500);
+  border-color: var(--brass-500);
+  transform: scale(1.08);
+}
+
+.pinHint,
+.pinError {
+  font-size: 13px;
+  min-height: 24px;
+  text-align: center;
+}
+
+.pinHint {
+  color: var(--muted);
+}
+
+.pinError {
+  color: var(--danger) !important;
+}
+
+.keypad {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 18px auto 0;
+  max-width: 330px;
+}
+
+.keypad button {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 24px;
+  height: 58px;
+  justify-content: center;
+  transition: background 130ms ease, transform 130ms ease;
+}
+
+.keypad button:hover:not(:disabled) {
+  background: var(--brass-100);
+}
+
+.keypad button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.keypad button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.safetyNote {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 12px;
+  gap: 7px;
+  margin-top: auto;
+  padding: 12px;
+}
+
+@media (min-width: 900px) {
+  .page {
+    grid-template-columns: minmax(420px, 0.9fr) minmax(520px, 1.1fr);
+  }
+
+  .brandPanel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .loginPanel {
+    padding: 36px 54px;
+  }
+}

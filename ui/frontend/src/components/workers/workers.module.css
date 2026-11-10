@@ -1,0 +1,484 @@
+.profile {
+  display: grid;
+  gap: 18px;
+}
+
+.factRow {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fact {
+  align-items: center;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: flex;
+  gap: 10px;
+  min-height: 74px;
+  padding: 10px 12px;
+}
+
+.fact > span {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fact strong {
+  color: var(--ink-strong);
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.fact small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.factRing {
+  font-size: 12px !important;
+}
+
+.tips {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tips li {
+  align-items: flex-start;
+  background: var(--warning-soft);
+  border-radius: 12px;
+  color: var(--ink);
+  display: flex;
+  font-size: 13px;
+  gap: 8px;
+  line-height: 1.4;
+  padding: 9px 11px;
+}
+
+.tips li svg {
+  color: var(--warning);
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.tips li[data-severity='problem'] { background: var(--danger-soft); }
+.tips li[data-severity='problem'] svg { color: var(--danger); }
+.tips li[data-severity='positive'] { background: var(--success-soft); }
+.tips li[data-severity='positive'] svg { color: var(--success); }
+
+.section {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  padding-top: 16px;
+}
+
+.sectionTitle {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sectionTitle h3 {
+  align-items: center;
+  color: var(--ink-strong);
+  display: flex;
+  font-size: 12px;
+  font-weight: 850;
+  gap: 6px;
+  letter-spacing: 0.06em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.sectionTitle h3 svg {
+  color: var(--royal-700);
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.inlinePair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.payRow {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+}
+
+.stepper {
+  align-items: center;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+}
+
+.stepper > button {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.stepper > button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.stepper > span {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  min-width: 96px;
+  text-align: center;
+}
+
+.stepper > span > button {
+  margin-left: 0;
+}
+
+.stepper strong {
+  font-size: 16px;
+}
+
+.stepper small {
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: -2px;
+}
+
+.statutoryGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+
+.statutoryGrid > div {
+  display: grid;
+  gap: 6px;
+}
+
+.fieldLabel {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.fieldBlock {
+  display: grid;
+  gap: 7px;
+}
+
+.contactRow {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.masked {
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.contactActions {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.contactActions a {
+  align-items: center;
+  background: var(--royal-950);
+  border-radius: 999px;
+  color: var(--surface);
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 800;
+  min-height: 34px;
+  padding: 0 13px;
+}
+
+.contactActions .whatsappLink {
+  background: #1f7a55;
+}
+
+.noteComposer {
+  display: grid;
+  gap: 8px;
+}
+
+.noteBox {
+  align-items: flex-end;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: flex;
+  gap: 6px;
+  padding: 8px 8px 8px 12px;
+}
+
+.noteBox:focus-within {
+  background: var(--surface);
+  border-color: var(--royal-600);
+  box-shadow: 0 0 0 3px var(--royal-100);
+}
+
+.noteBox textarea {
+  background: transparent;
+  border: 0;
+  flex: 1;
+  font-size: 14px;
+  min-height: 44px;
+  min-width: 0;
+  outline: 0;
+  resize: vertical;
+}
+
+.noteBoxActions {
+  display: flex;
+  gap: 6px;
+}
+
+.sendNote {
+  align-items: center;
+  background: var(--royal-950);
+  border-radius: 10px;
+  color: var(--brass-300);
+  cursor: pointer;
+  display: inline-flex;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.sendNote:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.emptyNotes {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.noteList {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.noteList li {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  display: grid;
+  gap: 4px;
+  overflow: hidden;
+  padding: 10px 40px 10px 12px;
+  position: relative;
+}
+
+.noteList li p {
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.noteList li small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.noteList li button {
+  align-items: center;
+  background: transparent;
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  height: 30px;
+  justify-content: center;
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 30px;
+}
+
+.noteList li button:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.noteTag {
+  background: var(--royal-100);
+  border-radius: 999px;
+  color: var(--royal-700);
+  font-size: 10.5px;
+  font-weight: 800;
+  justify-self: start;
+  padding: 2px 8px;
+}
+
+.noteTag[data-tag='pay'] { background: var(--brass-100); color: var(--warning); }
+.noteTag[data-tag='documents'] { background: var(--chart-5-soft); color: var(--chart-5-ink); }
+.noteTag[data-tag='behaviour'] { background: var(--warning-soft); color: var(--warning); }
+.noteTag[data-tag='health'] { background: var(--danger-soft); color: var(--danger); }
+
+.leaveButton,
+.rejoinButton {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--danger);
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 8px;
+  justify-content: center;
+  min-height: 46px;
+}
+
+.rejoinButton {
+  color: var(--success);
+}
+
+/* Quick add */
+.addIcon {
+  align-items: center;
+  background: var(--royal-100);
+  border-radius: 13px;
+  color: var(--royal-700);
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+
+.quickAdd {
+  display: grid;
+  gap: 18px;
+}
+
+.bigField {
+  display: grid;
+  gap: 7px;
+}
+
+.bigField > span:first-child {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.bigField small {
+  color: var(--muted-light);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.bigInput {
+  align-items: center;
+  background: var(--surface-soft);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  display: flex;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 8px 0 14px;
+}
+
+.bigInput:focus-within {
+  background: var(--surface);
+  border-color: var(--royal-600);
+  box-shadow: 0 0 0 4px var(--royal-100);
+}
+
+.bigInput input {
+  background: transparent;
+  border: 0;
+  flex: 1;
+  font-size: 17px;
+  min-width: 0;
+  outline: 0;
+}
+
+.primaryAction,
+.secondaryAction {
+  align-items: center;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  flex: 1;
+  font-size: 14px;
+  font-weight: 800;
+  gap: 7px;
+  justify-content: center;
+  min-height: 50px;
+}
+
+.primaryAction {
+  background: var(--royal-950);
+  color: var(--surface);
+}
+
+.secondaryAction {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.primaryAction:disabled,
+.secondaryAction:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+@media (min-width: 560px) {
+  .factRow {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .fact {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

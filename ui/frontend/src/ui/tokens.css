@@ -1,0 +1,73 @@
+:root {
+  --royal-975: #211028;
+  --royal-950: #2b1233;
+  --royal-900: #36173f;
+  --royal-800: #4b2058;
+  --royal-700: #642c72;
+  --royal-600: #7b3f88;
+  --royal-100: #efe6f2;
+  --brass-500: #cf9f48;
+  --brass-300: #ebcf94;
+  --brass-100: #f8eedb;
+  --saffron-400: #e9963a;
+  --porcelain: #f7f4ef;
+  --canvas: #f2eff3;
+  --surface: #ffffff;
+  --surface-soft: #f7f4f8;
+  --ink: #28222b;
+  --ink-strong: #1e1921;
+  --muted: #6f6873;
+  --muted-light: #918998;
+  --line: #ddd7df;
+  --line-strong: #c9c0cb;
+  --success: #2f7666;
+  --success-soft: #e3f1ed;
+  --warning: #ad6b25;
+  --warning-soft: #f7ead9;
+  --danger: #b4434e;
+  --danger-soft: #f6e1e3;
+  /* Company identity colours, validated for colour-blind separation (dataviz validator, all pairs). */
+  --chart-1: #8a3f9e;
+  --chart-2: #d9a21b;
+  --chart-3: #138f70;
+  --chart-4: #d2563f;
+  --chart-5: #4b82d6;
+  --chart-6: #8a8290;
+  --chart-1-soft: color-mix(in oklab, var(--chart-1) 14%, white);
+  --chart-2-soft: color-mix(in oklab, var(--chart-2) 18%, white);
+  --chart-3-soft: color-mix(in oklab, var(--chart-3) 14%, white);
+  --chart-4-soft: color-mix(in oklab, var(--chart-4) 14%, white);
+  --chart-5-soft: color-mix(in oklab, var(--chart-5) 14%, white);
+  --chart-1-ink: #6f2f80;
+  --chart-2-ink: #8a6100;
+  --chart-3-ink: #0d6b54;
+  --chart-4-ink: #a73c28;
+  --chart-5-ink: #2f62b0;
+  --grid: #ebe6ed;
+  --axis-text: #8a8290;
+  --white-08: rgb(255 255 255 / 8%);
+  --white-12: rgb(255 255 255 / 12%);
+  --white-72: rgb(255 255 255 / 72%);
+  --white-88: rgb(255 255 255 / 88%);
+  --royal-glow: rgb(100 44 114 / 18%);
+  --royal-shadow: rgb(33 16 40 / 10%);
+  --backdrop: rgb(33 16 40 / 48%);
+  --r-control: 12px;
+  --r-card: 18px;
+  --r-hero: 26px;
+  --r-pill: 999px;
+  --shadow-card: 0 1px 2px rgb(33 16 40 / 6%), 0 8px 24px rgb(33 16 40 / 6%);
+  --shadow-raised: 0 18px 55px rgb(33 16 40 / 12%);
+  --content-max: 1280px;
+  --spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme='dark'] {
+  --canvas: #1b1020;
+  --surface: #26162c;
+  --surface-soft: #2f1c36;
+  --ink: #efe9f1;
+  --ink-strong: #ffffff;
+  --muted: #b3a8b8;
+  --line: #3d2a44;
+}
