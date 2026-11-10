@@ -11,8 +11,8 @@ const requestSchema = z.object({
 
 const pinHashes: Record<string, string> = {
   rajesh: '$2b$10$wHzGZKId7y6L41IfGc.QkOUOXkR/0inqOssVql0KMQgwJJGDM/7US',
-  rishi: '$2b$10$o.F0GLgFDTA/tCoGmjxs9u/Qm44CXCl8ZUpCaLFjjFFxUOEmaLo3q',
-  papa: '$2b$10$TCTfmGSfqEECQb3RdZN1beDhYs2/t3RzKD62pd4NZ2Aelxjk0Y2sO'
+  admin: '$2b$10$o.F0GLgFDTA/tCoGmjxs9u/Qm44CXCl8ZUpCaLFjjFFxUOEmaLo3q',
+  viewer: '$2b$10$TCTfmGSfqEECQb3RdZN1beDhYs2/t3RzKD62pd4NZ2Aelxjk0Y2sO'
 };
 
 export async function POST(request: Request) {

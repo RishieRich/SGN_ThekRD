@@ -51,7 +51,21 @@
     "promiseWorkers": "{count} workers",
     "promiseCompanies": "{count} companies",
     "promiseModes": "Type · Speak · Excel",
-    "brandLine": "Hajri, workers, bills and wages in one calm place, in your own language."
+    "brandLine": "Hajri, workers, bills and wages in one calm place, in your own language.",
+    "persona": {
+      "owner": {
+        "access": "Full access",
+        "hint": "Everything: Hajri, workers, wages, Excel import, reminders and health notes."
+      },
+      "admin": {
+        "access": "Full access · support",
+        "hint": "Same as the owner, for the ARQ team that sets up and looks after the app."
+      },
+      "viewer": {
+        "access": "View only",
+        "hint": "Sees every page, can listen and ask. Can't change anything. Phone numbers masked, health notes hidden."
+      }
+    }
   },
   "nav": {
     "home": "Home",
@@ -251,8 +265,8 @@
   "ask": {
     "title": "Pucho",
     "subtitle": "Ask simple questions about your work.",
-    "connectionTitle": "Suggested questions work now",
-    "connectionBody": "Free-form chat will switch on when the Gemini key is added. No key is needed for the rest of the app.",
+    "connectionTitle": "Everyday questions work now",
+    "connectionBody": "Type or say a question about today, this month, PF, ESIC or absences. Open-ended chat switches on once the Gemini key is added.",
     "placeholder": "Ask a question",
     "send": "Send",
     "chipOne": "How many man-days this month?",
@@ -263,7 +277,8 @@
     "answerTwo": "{client} gives the most work at {pct}% of this month.",
     "answerThree": "{worker} was absent the most: {days} days this month.",
     "answerFour": "PF details are pending for {count} active workers.",
-    "source": "From your sample data"
+    "source": "From your sample data",
+    "listen": "Listen"
   },
   "roles": {
     "helper": "Helper",
@@ -504,6 +519,8 @@
     "didYouMean": "Did you mean"
   },
   "excel": {
+    "unknownRole": "Unknown role: {name} (using Helper)",
+    "remainingNotImported": "{count} more rows are not imported. Split large files into batches of 60 so every worker can be reviewed.",
     "dropHint": "Drop an Excel or CSV file here, or tap to choose",
     "formats": ".xlsx or .csv · read on this device, never uploaded",
     "reading": "Reading {file}…",

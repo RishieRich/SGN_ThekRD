@@ -9,7 +9,8 @@ import {defaultWagePaise, type NewWorkerInput} from './workers';
  * nothing here writes data, it only proposes. Works with English, Hinglish, Hindi, Marathi and Gujarati keywords.
  */
 
-export type QuestionTopic = 'today' | 'month' | 'pf' | 'esic' | 'unplaced' | 'absentMost';
+/** `open` is a question the app can't answer from its own numbers; Gemini takes it when connected. */
+export type QuestionTopic = 'today' | 'month' | 'pf' | 'esic' | 'unplaced' | 'absentMost' | 'open';
 
 export interface NameMatch {
   matched: Worker[];
@@ -50,6 +51,7 @@ const QUESTION = words(questionWords);
 const PF = words('pf|पीएफ|पी एफ|પીએફ');
 const ESIC = words('esic|ईएसआईसी|ઈએસઆઈસી');
 const UNPLACED = words('unplaced|bina company|without company|no company|बिना कंपनी|कंपनी नहीं|કંપની વગર');
+const TODAY_QUESTION = words('today|aaj|aaye|aaya|kitne log|आज|आए|आजे|आले|આજે|આજ|આવ્યા');
 const MONTH = words('month|mahina|mahine|महीने|महीना|महिना|महिन्यात|મહિને|મહિનો');
 const MOST = words('most|sabse|sabse zyada|सबसे|सर्वात|સૌથી');
 
@@ -229,7 +231,8 @@ function questionTopic(text: string): QuestionTopic {
   if (UNPLACED.test(text)) return 'unplaced';
   if (ABSENT.test(text) && MOST.test(text)) return 'absentMost';
   if (MONTH.test(text)) return 'month';
-  return 'today';
+  if (TODAY_QUESTION.test(text) || ABSENT.test(text) || PRESENT.test(text)) return 'today';
+  return 'open';
 }
 
 export function parseCommand(raw: string, workers: Worker[], companies: Company[]): Command {

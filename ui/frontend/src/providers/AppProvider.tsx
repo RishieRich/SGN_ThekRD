@@ -1,11 +1,9 @@
 'use client';
 
 import {NextIntlClientProvider} from 'next-intl';
+import {isLocale, loadMessages, messagesFor} from '@/lib/messages';
+import {configureVoice} from '@/lib/speech';
 import {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
-import en from '../../messages/en.json';
-import hi from '../../messages/hi.json';
-import mr from '../../messages/mr.json';
-import gu from '../../messages/gu.json';
 import {
   applyAbsentees,
   confirmAll,
@@ -27,7 +25,6 @@ import {companies, sampleReminders, workers as sampleWorkers} from '@/data/sampl
 import type {ImportKind} from '@/domain/imports';
 import type {AppUser, AttendanceNote, Locale, LocalAttendance, NoteTag, Reminder, Shift, Worker, WorkerNote} from '@/types';
 
-const messages = {en, hi, mr, gu};
 
 export type InputMode = 'type' | 'speak' | 'excel';
 
@@ -57,6 +54,8 @@ interface AppContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   hydrated: boolean;
+  /** Which AI keys are configured on the server (never the keys themselves). */
+  ai: AiAvailability;
   now: Date;
   todayISO: string;
 
@@ -131,8 +130,13 @@ function writeJSON(key: string, value: unknown) {
   }
 }
 
-export function AppProvider({user, children}: {user: AppUser; children: React.ReactNode}) {
-  const [locale, setLocaleState] = useState<Locale>(user.locale);
+export interface AiAvailability {
+  gemini: boolean;
+  sarvam: boolean;
+}
+
+export function AppProvider({user, ai, children}: {user: AppUser; ai: AiAvailability; children: React.ReactNode}) {
+  const [locale, setLocaleState] = useState<Locale>('en');
   const [hydrated, setHydrated] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [attendance, setAttendance] = useState<LocalAttendance>(emptyAttendance);
@@ -152,11 +156,15 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
   const todayISO = toISODate(now);
   const canEdit = user.role !== 'viewer';
 
-  // Load everything saved on this device once, after the first render.
+  // Load everything saved on this device once, after the first render. The saved language (or this
+  // person's default) arrives first, so nothing on screen or in a pop-up shows in the wrong language.
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const storedLocale = readJSON<Locale | null>(keys.locale, null);
-      if (storedLocale && storedLocale in messages) setLocaleState(storedLocale);
+    let live = true;
+    const stored = readJSON<unknown>(keys.locale, null);
+    const wanted = isLocale(stored) ? stored : user.locale;
+    void loadMessages(wanted).then(() => {
+      if (!live) return;
+      setLocaleState(wanted);
       setAttendance({...emptyAttendance, ...readJSON<LocalAttendance>(attendanceKey(toISODate(new Date())), emptyAttendance)});
       setWorkerEdits(readJSON<WorkerEdits>(keys.workers, emptyWorkerEdits));
       setNotes(readJSON<WorkerNote[]>(keys.notes, []));
@@ -165,10 +173,16 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
       announced.current = new Set(readJSON<string[]>(keys.announced, []));
       setNow(new Date());
       setHydrated(true);
-    }, 0);
+    });
 
-    return () => window.clearTimeout(timer);
-  }, []);
+    return () => {
+      live = false;
+    };
+  }, [user.locale]);
+
+  useEffect(() => {
+    configureVoice({server: ai.sarvam});
+  }, [ai.sarvam]);
 
   // Live clock for reminders and time-aware suggestions.
   useEffect(() => {
@@ -179,8 +193,7 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dataset.locale = locale;
-    if (hydrated) writeJSON(keys.locale, locale);
-  }, [hydrated, locale]);
+  }, [locale]);
 
   useEffect(() => {
     if (hydrated) writeJSON(attendanceKey(todayISO), attendance);
@@ -211,14 +224,14 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
   }, []);
 
   const t = useMemo(() => {
-    const dictionary = messages[locale] as unknown as Record<string, Record<string, string>>;
+    const dictionary = messagesFor(locale) as unknown as Record<string, Record<string, string>>;
     return (section: string, key: string, params: Record<string, string | number> = {}) =>
       (dictionary[section]?.[key] ?? key).replace(/\{(\w+)\}/g, (_, name: string) => String(params[name] ?? ''));
   }, [locale]);
 
   // Announce reminders the moment they fall due.
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !canEdit) return;
     const due = newlyDue(reminders, now, announced.current);
     if (!due.length) return;
     for (const reminder of due) {
@@ -232,11 +245,11 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
       });
     }
     writeJSON(keys.announced, [...announced.current].slice(-200));
-  }, [hydrated, now, pushToast, reminders, t]);
+  }, [canEdit, hydrated, now, pushToast, reminders, t]);
 
   // A gentle morning nudge once a day if Hajri is still open after 10 AM.
   useEffect(() => {
-    if (!hydrated || attendance.allConfirmed || now.getHours() < 10) return;
+    if (!hydrated || !canEdit || attendance.allConfirmed || now.getHours() < 10) return;
     const timer = window.setTimeout(() => {
       if (readJSON<string | null>(keys.nudge, null) === todayISO) return;
       writeJSON(keys.nudge, todayISO);
@@ -244,9 +257,15 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [attendance.allConfirmed, hydrated, now, pushToast, t, todayISO]);
+  }, [attendance.allConfirmed, canEdit, hydrated, now, pushToast, t, todayISO]);
 
-  const setLocale = useCallback((nextLocale: Locale) => setLocaleState(nextLocale), []);
+  const setLocale = useCallback((nextLocale: Locale) => {
+    // Switch only once the words are here, so the screen never shows half one language.
+    void loadMessages(nextLocale).then(() => {
+      setLocaleState(nextLocale);
+      writeJSON(keys.locale, nextLocale);
+    });
+  }, []);
 
   const updateWorker = useCallback(
     (workerId: string, patch: Partial<Worker>, options: {silent?: boolean} = {}) => {
@@ -369,6 +388,7 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
       locale,
       setLocale,
       hydrated,
+      ai,
       now,
       todayISO,
       workers,
@@ -405,7 +425,7 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
       dismissToast
     }),
     [
-      addNote, addReminder, addWorker, addWorkers, assistant, closeAssistant, markWorkersAbsent, openAssistant, attendance, canEdit, completeReminder, confirmEveryCompany, confirmOneCompany, copyAbsentees,
+      addNote, addReminder, addWorker, addWorkers, ai, assistant, closeAssistant, markWorkersAbsent, openAssistant, attendance, canEdit, completeReminder, confirmEveryCompany, confirmOneCompany, copyAbsentees,
       deleteNote, deleteReminder, dismissToast, history, hydrated, locale, markAllPresent, month, notes, now, pushToast, reminders,
       remindersOpen, saveAttendanceNote, saveGateCount, setLocale, setWorkerAbsent, snooze, toasts, todayISO, toggleWorkerAbsent,
       updateWorker, user, workers
@@ -413,7 +433,7 @@ export function AppProvider({user, children}: {user: AppUser; children: React.Re
   );
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages[locale]} timeZone="Asia/Kolkata">
+    <NextIntlClientProvider locale={locale} messages={messagesFor(locale)} timeZone="Asia/Kolkata">
       <AppContext.Provider value={value}>{children}</AppContext.Provider>
     </NextIntlClientProvider>
   );

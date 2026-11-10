@@ -223,6 +223,54 @@
   color: var(--success);
 }
 
+.roleLine {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.roleLine em {
+  background: var(--royal-50);
+  border-radius: 999px;
+  color: var(--royal-700);
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+}
+
+.roleLine em[data-role='admin'] {
+  background: var(--brass-100);
+  color: var(--warning);
+}
+
+.roleLine em[data-role='viewer'] {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.pinScope {
+  background: var(--royal-50);
+  border-radius: 12px;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 12px 0 18px;
+  padding: 10px 12px;
+}
+
+.pinAvatar[data-role='admin'] {
+  background: var(--brass-100);
+  color: var(--warning);
+}
+
+.pinAvatar[data-role='viewer'] {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
 .userInfo {
   display: flex;
   flex: 1;

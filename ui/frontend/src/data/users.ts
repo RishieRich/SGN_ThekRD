@@ -11,24 +11,36 @@ export const users: AppUser[] = [
     previewPin: '1234'
   },
   {
-    id: 'rishi',
-    name: 'Rishi',
-    initials: 'RS',
+    id: 'admin',
+    name: 'Admin',
+    initials: 'AD',
     phone: '90000 00002',
     role: 'admin',
     locale: 'en',
     previewPin: '9999'
   },
   {
-    id: 'papa',
-    name: 'Papa',
-    initials: 'PD',
+    id: 'viewer',
+    name: 'Viewer',
+    initials: 'VW',
     phone: '90000 00003',
     role: 'viewer',
     locale: 'gu',
     previewPin: '1111'
   }
 ];
+
+/**
+ * Profiles are named by role. Only the owner is a person ("Rajesh"), and only once signed in;
+ * the login screen shows Owner, Admin and Viewer.
+ */
+export function greetingName(user: AppUser, roleLabel: string) {
+  return user.role === 'owner' ? user.name.split(' ')[0] : roleLabel;
+}
+
+export function displayName(user: AppUser, roleLabel: string) {
+  return user.role === 'owner' ? user.name : roleLabel;
+}
 
 export function findUser(userId: string | undefined) {
   return users.find((user) => user.id === userId);

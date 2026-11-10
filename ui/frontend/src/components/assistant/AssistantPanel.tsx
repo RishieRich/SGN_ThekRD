@@ -1,6 +1,6 @@
 'use client';
 
-import {ArrowUp, FileSpreadsheet, Keyboard, Mic, MicOff} from 'lucide-react';
+import {ArrowUp, FileSpreadsheet, Keyboard, LoaderCircle, Mic, MicOff} from 'lucide-react';
 import {AnimatePresence, motion} from 'motion/react';
 import {useTranslations} from 'next-intl';
 import {useEffect, useRef, useState} from 'react';
@@ -8,6 +8,7 @@ import {ParticleOrb, type OrbState} from '@/components/ambient/ParticleOrb';
 import {SuggestionList} from '@/components/suggestions/SuggestionList';
 import {Sheet} from '@/components/ui/Sheet';
 import {companies} from '@/data/sample-data';
+import {greetingName} from '@/data/users';
 import {parseCommand, type Command} from '@/domain/commands';
 import {useDictation} from '@/lib/dictation';
 import {useApp, type InputMode} from '@/providers/AppProvider';
@@ -24,6 +25,7 @@ const modeIcons = {type: Keyboard, speak: Mic, excel: FileSpreadsheet} as const;
 export function AssistantPanel() {
   const t = useTranslations('assistant');
   const common = useTranslations('common');
+  const roles = useTranslations('login');
   const {assistant, closeAssistant, workers, user} = useApp();
   const [mode, setMode] = useState<InputMode>('type');
   const [command, setCommand] = useState<{text: string; result: Command; key: number} | null>(null);
@@ -48,7 +50,7 @@ export function AssistantPanel() {
   }
 
   const orbState: OrbState = listening ? 'listening' : thinking ? 'thinking' : 'idle';
-  const firstName = user.name.split(' ')[0];
+  const firstName = greetingName(user, roles(user.role));
 
   return (
     <Sheet
@@ -153,7 +155,7 @@ function TypeBox({onSubmit, autoFocusKey}: {onSubmit: (text: string) => void; au
 
 function SpeakBox({onText, onListening, autoStart, startKey}: {onText: (text: string) => void; onListening: (value: boolean) => void; autoStart: boolean; startKey: number}) {
   const t = useTranslations('assistant');
-  const {locale} = useApp();
+  const {locale, ai} = useApp();
   const [live, setLive] = useState('');
   const dictation = useDictation(
     locale,
@@ -161,14 +163,14 @@ function SpeakBox({onText, onListening, autoStart, startKey}: {onText: (text: st
       setLive('');
       onText(text);
     },
-    {onInterim: setLive}
+    {onInterim: setLive, server: ai.sarvam}
   );
-  const {start, supported, listening} = dictation;
+  const {start, supported, listening, transcribing, failed, engine} = dictation;
 
   useEffect(() => {
-    onListening(listening);
+    onListening(listening || transcribing);
     return () => onListening(false);
-  }, [listening, onListening]);
+  }, [listening, onListening, transcribing]);
 
   useEffect(() => {
     if (autoStart && supported) start();
@@ -180,13 +182,15 @@ function SpeakBox({onText, onListening, autoStart, startKey}: {onText: (text: st
 
   return (
     <div className={styles.speakBox}>
-      <button aria-pressed={listening} className={styles.bigMic} data-listening={listening ? 'true' : undefined} onClick={dictation.toggle} type="button">
+      <button aria-pressed={listening} className={styles.bigMic} data-listening={listening ? 'true' : undefined} disabled={transcribing} onClick={dictation.toggle} type="button">
         <span className={styles.micRings} aria-hidden="true"><i /><i /><i /></span>
-        {listening ? <MicOff size={30} /> : <Mic size={30} />}
+        {transcribing ? <LoaderCircle className={styles.spin} size={30} /> : listening ? <MicOff size={30} /> : <Mic size={30} />}
       </button>
-      <strong className={styles.speakState}>{listening ? t('listening') : t('tapToSpeak')}</strong>
-      <p className={styles.liveText} aria-live="polite">{live || t('speakHint')}</p>
-      <small className={styles.privacy}>{t('voicePrivacy')}</small>
+      <strong className={styles.speakState}>{listening ? t('listening') : transcribing ? t('transcribing') : t('tapToSpeak')}</strong>
+      <p className={styles.liveText} aria-live="polite">
+        {live || (failed ? t('voiceFailed') : listening && engine === 'sarvam' ? t('speakAutoStop') : t('speakHint'))}
+      </p>
+      <small className={styles.privacy}>{engine === 'sarvam' ? t('voicePrivacySarvam') : t('voicePrivacy')}</small>
     </div>
   );
 }

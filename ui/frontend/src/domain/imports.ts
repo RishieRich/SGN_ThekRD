@@ -64,6 +64,12 @@ const presentValue = /^(p|pr|present|yes|y|1|✓|✔|हाज़िर|हा�
 
 export type NamesMeaning = 'absent' | 'present';
 
+export interface AttendanceAmbiguity {
+  text: string;
+  options: Worker[];
+  meaning: NamesMeaning;
+}
+
 export interface AttendanceImport extends NameMatch {
   /** True when the sheet has a P/A column; then the sheet decides who is absent. */
   hasStatus: boolean;
@@ -71,6 +77,8 @@ export interface AttendanceImport extends NameMatch {
   absentIds: string[];
   /** Rows whose status could not be read. */
   unclear: string[];
+  /** Ambiguous rows with their original present/absent meaning preserved. */
+  ambiguousRows: AttendanceAmbiguity[];
   rowCount: number;
 }
 
@@ -100,26 +108,40 @@ export function attendanceFromSheet(rows: string[][], workers: Worker[], meaning
     else unclear.push(name);
   }
 
-  const listed = hasStatus ? [...absentNames, ...presentNames] : meaning === 'absent' ? absentNames : presentNames;
-  const match = matchNames(workers, listed.join('\n'), {oneNamePerLine: true});
-  const absentKeys = new Set(absentNames.map(normaliseName));
+  const absentMatch = matchNames(workers, absentNames.join('\n'), {oneNamePerLine: true});
+  const presentMatch = matchNames(workers, presentNames.join('\n'), {oneNamePerLine: true});
+  const matched = [...new Map([...absentMatch.matched, ...presentMatch.matched].map((worker) => [worker.id, worker])).values()];
+  const ambiguousRows: AttendanceAmbiguity[] = [
+    ...absentMatch.ambiguous.map((item) => ({...item, meaning: 'absent' as const})),
+    ...presentMatch.ambiguous.map((item) => ({...item, meaning: 'present' as const}))
+  ];
+  const match: NameMatch = {
+    matched,
+    ambiguous: ambiguousRows.map(({text, options}) => ({text, options})),
+    unmatched: [...absentMatch.unmatched, ...presentMatch.unmatched]
+  };
   const placed = workers.filter((worker) => worker.status === 'active' && worker.companyId);
 
   let absentIds: string[];
-  if (hasStatus) absentIds = match.matched.filter((worker) => absentKeys.has(normaliseName(worker.name)) || absentNames.some((name) => sameName(name, worker))).map((worker) => worker.id);
-  else if (meaning === 'absent') absentIds = match.matched.map((worker) => worker.id);
+  if (hasStatus || meaning === 'absent') absentIds = absentMatch.matched.map((worker) => worker.id);
   else {
-    const presentIds = new Set(match.matched.map((worker) => worker.id));
+    const presentIds = new Set(presentMatch.matched.map((worker) => worker.id));
     absentIds = placed.filter((worker) => !presentIds.has(worker.id)).map((worker) => worker.id);
   }
 
-  return {...match, hasStatus, absentIds, unclear, rowCount: data.length};
+  return {...match, hasStatus, absentIds, unclear, ambiguousRows, rowCount: data.length};
 }
 
-function sameName(text: string, worker: Worker) {
-  const key = normaliseName(text);
-  const name = normaliseName(worker.name);
-  return key.length >= 2 && (name === key || name.startsWith(`${key} `) || key.startsWith(`${name} `));
+/** Applies the user's one-person choice for each ambiguous sheet row without losing its status. */
+export function resolveAttendanceAbsentIds(result: AttendanceImport, picked: Record<number, string>) {
+  const absentIds = new Set(result.absentIds);
+  result.ambiguousRows.forEach((row, index) => {
+    const workerId = picked[index];
+    if (!workerId || !row.options.some((option) => option.id === workerId)) return;
+    if (row.meaning === 'absent') absentIds.add(workerId);
+    else absentIds.delete(workerId);
+  });
+  return [...absentIds];
 }
 
 const roleValues: Array<[WorkerRole, RegExp]> = [

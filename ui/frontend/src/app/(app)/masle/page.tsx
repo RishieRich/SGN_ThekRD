@@ -21,7 +21,7 @@ const typeIcons = {
 export default function IssuesPage() {
   const t = useTranslations('issues');
   const common = useTranslations('common');
-  const {user} = useApp();
+  const {user, canEdit} = useApp();
   const [tab, setTab] = useState<'open' | 'closed'>('open');
   const [notice, setNotice] = useState(false);
   const visibleIssues = issues.filter((issue) => !(user.role === 'viewer' && issue.sensitive));
@@ -30,7 +30,7 @@ export default function IssuesPage() {
     <div className={styles.page}>
       <header className={styles.pageHeader}>
         <div><span>{t('open')}</span><h1>{t('title')}</h1><p>{t('subtitle')}</p></div>
-        <button onClick={() => setNotice(true)} type="button"><Plus size={18} /> {t('newIssue')}</button>
+        {canEdit && <button onClick={() => setNotice(true)} type="button"><Plus size={18} /> {t('newIssue')}</button>}
       </header>
 
       {notice && <div className={styles.notice}><span>{t('localOnly')}</span><button aria-label={common('close')} onClick={() => setNotice(false)} type="button"><X size={17} /></button></div>}

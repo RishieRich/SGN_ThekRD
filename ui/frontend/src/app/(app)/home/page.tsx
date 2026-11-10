@@ -37,8 +37,9 @@ import {attendanceStreak, averageAttendanceRate, dailySeries} from '@/domain/his
 import {formatINR} from '@/domain/money';
 import {reminderBuckets} from '@/domain/reminders';
 import {todayStrength} from '@/domain/strength';
+import {greetingName} from '@/data/users';
 import {formatDate, formatNumber} from '@/lib/format';
-import {speakInBrowser} from '@/lib/speech';
+import {speak} from '@/lib/speech';
 import {useApp} from '@/providers/AppProvider';
 import styles from './home.module.css';
 
@@ -54,8 +55,10 @@ export default function HomePage() {
   const t = useTranslations('home');
   const common = useTranslations('common');
   const scene = useTranslations('scene');
+  const roles = useTranslations('login');
   const router = useRouter();
   const {user, locale, attendance, workers, history, month, todayISO, now, reminders, setRemindersOpen} = useApp();
+  const greeting = greetingName(user, roles(user.role));
   const suggestions = useSuggestions();
   const renderSuggestion = useSuggestionText();
 
@@ -95,8 +98,8 @@ export default function HomePage() {
       <section className={styles.hero}>
         <div className={styles.heroText}>
           <motion.span className={styles.date} {...rise(0)}>{today}</motion.span>
-          <h1 aria-label={t('greeting', {name: user.name.split(' ')[0]})}>
-            {t('greeting', {name: user.name.split(' ')[0]}).split(' ').map((word, index) => (
+          <h1 aria-label={t('greeting', {name: greeting})}>
+            {t('greeting', {name: greeting}).split(' ').map((word, index) => (
               <motion.span
                 animate={{opacity: 1, y: 0, filter: 'blur(0px)'}}
                 aria-hidden="true"
@@ -116,7 +119,7 @@ export default function HomePage() {
           </div>
           <div className={styles.headerActions}>
             <Pill tone="royal"><Flame size={13} /> {t('streak', {days: streak})}</Pill>
-            <button className={styles.listenAll} onClick={() => speakInBrowser(suggestions.filter((item) => item.audience === 'owner').slice(0, 5).map(renderSuggestion).join('. '), locale)} type="button">
+            <button className={styles.listenAll} onClick={() => speak(suggestions.filter((item) => item.audience === 'owner').slice(0, 5).map(renderSuggestion).join('. '), locale)} type="button">
               <Speaker size={16} /> {t('listenAll')}
             </button>
           </div>

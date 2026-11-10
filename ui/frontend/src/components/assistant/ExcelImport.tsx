@@ -6,7 +6,7 @@ import {useMemo, useRef, useState} from 'react';
 import {Avatar} from '@/components/ui/Avatar';
 import {ChoiceChips} from '@/components/ui/ChoiceChips';
 import {companies} from '@/data/sample-data';
-import {attendanceFromSheet, attendanceTemplate, detectColumns, guessKind, workersFromSheet, workersTemplate, type ImportKind, type NamesMeaning} from '@/domain/imports';
+import {attendanceFromSheet, attendanceTemplate, detectColumns, guessKind, resolveAttendanceAbsentIds, workersFromSheet, workersTemplate, type ImportKind, type NamesMeaning} from '@/domain/imports';
 import {formatINR} from '@/domain/money';
 import {downloadCsv, readSpreadsheet, SpreadsheetError, type SheetRows} from '@/lib/spreadsheet';
 import {useApp} from '@/providers/AppProvider';
@@ -93,9 +93,9 @@ function AttendancePreview({rows, onDone}: {rows: SheetRows; onDone: () => void}
   const t = useTranslations('excel');
   const {workers, markWorkersAbsent, copyAbsentees, pushToast, canEdit} = useApp();
   const [meaning, setMeaning] = useState<NamesMeaning>('absent');
-  const [picked, setPicked] = useState<string[]>([]);
+  const [picked, setPicked] = useState<Record<number, string>>({});
   const result = useMemo(() => attendanceFromSheet(rows, workers, meaning), [rows, workers, meaning]);
-  const absentIds = [...new Set([...result.absentIds, ...(meaning === 'absent' || result.hasStatus ? picked : [])])];
+  const absentIds = resolveAttendanceAbsentIds(result, picked);
   const absentWorkers = absentIds.map((id) => workers.find((worker) => worker.id === id)).filter((worker): worker is Worker => Boolean(worker));
   const replaces = result.hasStatus || meaning === 'present';
 
@@ -113,7 +113,16 @@ function AttendancePreview({rows, onDone}: {rows: SheetRows; onDone: () => void}
       ) : (
         <div className={styles.kindRow}>
           <span>{t('namesAre')}</span>
-          <ChoiceChips choices={[{value: 'absent', label: t('namesAbsent')}, {value: 'present', label: t('namesPresent')}]} label={t('namesAre')} onChange={setMeaning} size="sm" value={meaning} />
+          <ChoiceChips
+            choices={[{value: 'absent', label: t('namesAbsent')}, {value: 'present', label: t('namesPresent')}]}
+            label={t('namesAre')}
+            onChange={(value) => {
+              setMeaning(value);
+              setPicked({});
+            }}
+            size="sm"
+            value={meaning}
+          />
         </div>
       )}
       <div className={styles.summaryStrip}>
@@ -129,12 +138,17 @@ function AttendancePreview({rows, onDone}: {rows: SheetRows; onDone: () => void}
           {absentWorkers.length > 30 && <span className={styles.more}>{t('more', {count: absentWorkers.length - 30})}</span>}
         </div>
       )}
-      {result.ambiguous.slice(0, 6).map((item) => (
-        <div className={styles.pick} key={item.text}>
+      {result.ambiguousRows.slice(0, 6).map((item, index) => (
+        <div className={styles.pick} key={`${item.text}-${index}`}>
           <span>{t('which', {name: item.text})}</span>
           <div>
             {item.options.map((option) => (
-              <button aria-pressed={picked.includes(option.id)} key={option.id} onClick={() => setPicked((list) => (list.includes(option.id) ? list.filter((id) => id !== option.id) : [...list, option.id]))} type="button">
+              <button
+                aria-pressed={picked[index] === option.id}
+                key={option.id}
+                onClick={() => setPicked((current) => ({...current, [index]: current[index] === option.id ? '' : option.id}))}
+                type="button"
+              >
                 {option.name} <small>{companyOf(option)?.shortName}</small>
               </button>
             ))}
@@ -160,8 +174,10 @@ function WorkersPreview({rows, onDone}: {rows: SheetRows; onDone: () => void}) {
   const common = useTranslations('common');
   const {workers, addWorkers, pushToast, canEdit, locale} = useApp();
   const parsed = useMemo(() => workersFromSheet(rows, workers, companies), [rows, workers]);
-  const [skip, setSkip] = useState<Set<number>>(() => new Set(parsed.flatMap((row, index) => (row.duplicate ? [index] : []))));
-  const chosen = parsed.filter((_, index) => !skip.has(index));
+  const reviewLimit = 60;
+  const reviewRows = parsed.slice(0, reviewLimit);
+  const [skip, setSkip] = useState<Set<number>>(() => new Set(reviewRows.flatMap((row, index) => (row.duplicate ? [index] : []))));
+  const chosen = reviewRows.filter((_, index) => !skip.has(index));
 
   function apply() {
     const created = addWorkers(chosen.map((row) => row.input));
@@ -177,7 +193,7 @@ function WorkersPreview({rows, onDone}: {rows: SheetRows; onDone: () => void}) {
         {parsed.length - chosen.length > 0 && <span data-tone="warning"><strong>{parsed.length - chosen.length}</strong>{t('skipped')}</span>}
       </div>
       <ul className={styles.importList}>
-        {parsed.slice(0, 60).map((row, index) => {
+        {reviewRows.map((row, index) => {
           const company = companies.find((item) => item.id === row.input.companyId);
           const included = !skip.has(index);
           return (
@@ -201,11 +217,12 @@ function WorkersPreview({rows, onDone}: {rows: SheetRows; onDone: () => void}) {
               </label>
               {row.duplicate && <em data-tone="warning">{t('duplicate')}</em>}
               {row.unknownCompany && <em data-tone="warning">{t('unknownCompany', {name: row.unknownCompany})}</em>}
+              {row.unknownRole && <em data-tone="warning">{t('unknownRole', {name: row.unknownRole})}</em>}
             </li>
           );
         })}
       </ul>
-      {parsed.length > 60 && <p className={styles.muted}>{t('more', {count: parsed.length - 60})}</p>}
+      {parsed.length > reviewLimit && <p className={styles.muted}>{t('remainingNotImported', {count: parsed.length - reviewLimit})}</p>}
       <div className={styles.actions}>
         <button className={styles.secondary} onClick={onDone} type="button">{t('cancel')}</button>
         <button className={styles.primary} disabled={!canEdit || !chosen.length} onClick={apply} type="button">

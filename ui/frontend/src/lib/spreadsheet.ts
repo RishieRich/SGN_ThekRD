@@ -14,6 +14,7 @@ export class SpreadsheetError extends Error {
 
 export const maxSpreadsheetBytes = 5 * 1024 * 1024;
 const maxRows = 3000;
+const maxExpandedEntryBytes = 10 * 1024 * 1024;
 
 export async function readSpreadsheet(file: File): Promise<SheetRows> {
   if (file.size > maxSpreadsheetBytes) throw new SpreadsheetError('tooBig');
@@ -81,6 +82,7 @@ interface ZipEntry {
   name: string;
   method: number;
   compressedSize: number;
+  uncompressedSize: number;
   offset: number;
 }
 
@@ -101,12 +103,13 @@ function zipEntries(view: DataView): ZipEntry[] {
     if (view.getUint32(pointer, true) !== 0x02014b50) throw new SpreadsheetError('unreadable');
     const method = view.getUint16(pointer + 10, true);
     const compressedSize = view.getUint32(pointer + 20, true);
+    const uncompressedSize = view.getUint32(pointer + 24, true);
     const nameLength = view.getUint16(pointer + 28, true);
     const extraLength = view.getUint16(pointer + 30, true);
     const commentLength = view.getUint16(pointer + 32, true);
     const offset = view.getUint32(pointer + 42, true);
     const name = decoder.decode(new Uint8Array(view.buffer, view.byteOffset + pointer + 46, nameLength));
-    entries.push({name, method, compressedSize, offset});
+    entries.push({name, method, compressedSize, uncompressedSize, offset});
     pointer += 46 + nameLength + extraLength + commentLength;
   }
   return entries;
@@ -118,6 +121,7 @@ async function inflateRaw(data: Uint8Array) {
 }
 
 async function readEntry(view: DataView, entry: ZipEntry) {
+  if (entry.uncompressedSize > maxExpandedEntryBytes) throw new SpreadsheetError('tooBig');
   const nameLength = view.getUint16(entry.offset + 26, true);
   const extraLength = view.getUint16(entry.offset + 28, true);
   const start = view.byteOffset + entry.offset + 30 + nameLength + extraLength;

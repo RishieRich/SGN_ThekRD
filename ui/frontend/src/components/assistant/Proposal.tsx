@@ -1,22 +1,23 @@
 'use client';
 
-import {ArrowRight, Bell, CheckCircle2, HelpCircle, Minus, Moon, Plus, Speaker, Sun, UserPlus, UserRound, UserX, X} from 'lucide-react';
+import {ArrowRight, Bell, CheckCircle2, HelpCircle, LoaderCircle, Minus, Moon, Plus, Sparkles, Speaker, Sun, UserPlus, UserRound, UserX, X} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Avatar} from '@/components/ui/Avatar';
 import {ChoiceChips} from '@/components/ui/ChoiceChips';
 import {InlineText} from '@/components/ui/InlineText';
 import {companies} from '@/data/sample-data';
 import {todayTotals} from '@/domain/attendance';
+import {buildFacts} from '@/domain/facts';
 import type {Command, QuestionTopic} from '@/domain/commands';
 import {workerMonthRecord} from '@/domain/history';
 import {formatINR} from '@/domain/money';
 import {presetDueAt, reminderPresets, type ReminderPreset} from '@/domain/reminders';
 import {stepWage, type NewWorkerInput} from '@/domain/workers';
 import {formatNumber} from '@/lib/format';
-import {speakInBrowser} from '@/lib/speech';
+import {speak} from '@/lib/speech';
 import {useApp} from '@/providers/AppProvider';
 import {workerRoles, type Worker} from '@/types';
 import styles from './assistant.module.css';
@@ -32,15 +33,19 @@ interface ProposalProps {
 
 export function Proposal({command, heard, onDone, onTry}: ProposalProps) {
   const t = useTranslations('assistant');
+  const {ai} = useApp();
+  // Questions the app can't answer from its own numbers go to Gemini when it is connected.
+  const askAi = ai.gemini && ((command.kind === 'question' && command.topic === 'open') || (command.kind === 'unknown' && command.suggestions.length === 0));
   return (
     <div className={styles.proposal}>
       <p className={styles.heard}><span>{t('youSaid')}</span> “{heard}”</p>
       {(command.kind === 'absent' || command.kind === 'present') && <NamesProposal command={command} onDone={onDone} />}
       {command.kind === 'remind' && <RemindProposal onDone={onDone} preset={command.preset} text={command.text} />}
       {command.kind === 'addWorker' && <AddWorkerProposal input={command.input} onDone={onDone} />}
-      {command.kind === 'question' && <Answer topic={command.topic} />}
+      {askAi && <AiAnswer question={heard} />}
+      {!askAi && command.kind === 'question' && <Answer topic={command.topic === 'open' ? 'today' : command.topic} />}
       {command.kind === 'openWorker' && <WorkerFound onDone={onDone} worker={command.worker} />}
-      {command.kind === 'unknown' && <NotUnderstood onTry={onTry} suggestions={command.suggestions} />}
+      {!askAi && command.kind === 'unknown' && <NotUnderstood onTry={onTry} suggestions={command.suggestions} />}
     </div>
   );
 }
@@ -192,7 +197,7 @@ function AddWorkerProposal({input, onDone}: {input: NewWorkerInput; onDone: () =
   );
 }
 
-function Answer({topic}: {topic: QuestionTopic}) {
+function Answer({topic}: {topic: Exclude<QuestionTopic, 'open'>}) {
   const t = useTranslations('assistant');
   const {workers, attendance, month, history, todayISO, locale} = useApp();
   const active = workers.filter((worker) => worker.status === 'active');
@@ -201,7 +206,7 @@ function Answer({topic}: {topic: QuestionTopic}) {
     .map((worker) => ({worker, absent: workerMonthRecord(history, worker.id, todayISO).absent}))
     .sort((left, right) => right.absent - left.absent)[0];
 
-  const answers: Record<QuestionTopic, {text: string; href: string}> = {
+  const answers: Record<Exclude<QuestionTopic, 'open'>, {text: string; href: string}> = {
     today: {
       text: t('answer.today', {present: totals.present, absent: totals.absent, total: totals.usual, done: attendance.confirmedCompanyIds.length, companies: companies.length}),
       href: '/hajri'
@@ -219,7 +224,7 @@ function Answer({topic}: {topic: QuestionTopic}) {
       <h4 className={styles.proposalTitle}><span className={styles.iconViolet}><HelpCircle size={17} /></span>{t('answerTitle')}</h4>
       <p className={styles.answer}>{answer.text}</p>
       <div className={styles.actions}>
-        <button className={styles.secondary} onClick={() => speakInBrowser(answer.text, locale)} type="button"><Speaker size={16} /> {t('listen')}</button>
+        <button className={styles.secondary} onClick={() => speak(answer.text, locale)} type="button"><Speaker size={16} /> {t('listen')}</button>
         <Link className={styles.primary} href={answer.href}>{t('seeDetails')} <ArrowRight size={16} /></Link>
       </div>
     </>
@@ -281,6 +286,67 @@ function NotUnderstood({suggestions, onTry}: {suggestions: Worker[]; onTry: (tex
           <div>{suggestions.map((worker) => <button key={worker.id} onClick={() => onTry(worker.name)} type="button">{worker.name}</button>)}</div>
         </div>
       )}
+    </>
+  );
+}
+
+type AiState = {status: 'loading'} | {status: 'done'; text: string} | {status: 'failed'; reason: string};
+
+/** An open question, worded by Gemini from numbers the app has already worked out. */
+function AiAnswer({question}: {question: string}) {
+  const t = useTranslations('assistant');
+  const {workers, attendance, month, history, todayISO, locale, user, canEdit} = useApp();
+  const [state, setState] = useState<AiState>({status: 'loading'});
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const facts = buildFacts({workers, companies, attendance, month, history, todayISO, role: user.role});
+    fetch('/api/ask', {
+      method: 'POST',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({question, locale, facts}),
+      signal: controller.signal
+    })
+      .then(async (response) => {
+        const body = (await response.json().catch(() => ({}))) as {answer?: string; code?: string};
+        if (!response.ok || !body.answer) throw new Error(body.code ?? 'error');
+        setState({status: 'done', text: body.answer});
+      })
+      .catch((error: Error) => {
+        if (!controller.signal.aborted) setState({status: 'failed', reason: error.message});
+      });
+    return () => controller.abort();
+    // One request per question; the numbers at the moment of asking are what it answers from.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question, locale]);
+
+  if (state.status === 'loading') {
+    return (
+      <p className={styles.aiThinking} aria-live="polite">
+        <LoaderCircle className={styles.spin} size={18} /> {t('aiThinking')}
+      </p>
+    );
+  }
+
+  if (state.status === 'failed') {
+    const known = ['invalid_key', 'missing_key', 'no_credits'].includes(state.reason) ? state.reason : 'error';
+    return (
+      <>
+        <h4 className={styles.proposalTitle}><span className={styles.iconWarm}><HelpCircle size={17} /></span>{t('aiFailedTitle')}</h4>
+        <p className={styles.muted}>{t('unknownBody')}</p>
+        {canEdit && <p className={styles.aiProblem}>{t(`aiError.${known}`)}</p>}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <h4 className={styles.proposalTitle}><span className={styles.iconViolet}><Sparkles size={17} /></span>{t('answerTitle')}</h4>
+      <p className={styles.answer}>{state.text}</p>
+      <p className={styles.aiSource}><Sparkles size={13} /> {t('aiSource')}</p>
+      <div className={styles.actions}>
+        <button className={styles.secondary} onClick={() => speak(state.text, locale)} type="button"><Speaker size={16} /> {t('listen')}</button>
+      </div>
     </>
   );
 }

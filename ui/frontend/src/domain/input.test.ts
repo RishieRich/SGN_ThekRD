@@ -3,7 +3,7 @@ import {companies, workers} from '@/data/sample-data';
 import {parseCsv, readXlsx} from '@/lib/spreadsheet';
 import {searchWorkers} from './attendance';
 import {matchNames, parseCommand} from './commands';
-import {attendanceFromSheet, detectColumns, guessKind, workersFromSheet, workersTemplate} from './imports';
+import {attendanceFromSheet, detectColumns, guessKind, resolveAttendanceAbsentIds, workersFromSheet, workersTemplate} from './imports';
 import {looseKey, nameKey, transliterate} from './names';
 import en from '../../messages/en.json';
 import gu from '../../messages/gu.json';
@@ -65,6 +65,8 @@ describe('typed and spoken commands', () => {
     expect(parseCommand('How many man-days this month?', workers, companies)).toEqual({kind: 'question', topic: 'month'});
     expect(parseCommand('PF kitne pending hai', workers, companies)).toEqual({kind: 'question', topic: 'pf'});
     expect(parseCommand('aaj kitne log aaye', workers, companies)).toEqual({kind: 'question', topic: 'today'});
+    expect(parseCommand('Which company pays the highest rate per day?', workers, companies)).toEqual({kind: 'question', topic: 'open'});
+    expect(parseCommand('how many are absent today?', workers, companies)).toEqual({kind: 'question', topic: 'today'});
     expect(parseCommand('Manoj Kumar', workers, companies)).toMatchObject({kind: 'openWorker', worker: {name: 'Manoj Kumar'}});
     expect(parseCommand('qwerty zzz', workers, companies).kind).toBe('unknown');
   });
@@ -93,6 +95,21 @@ describe('spreadsheet import', () => {
     const presentList = attendanceFromSheet([['Manoj Kumar']], workers, 'present');
     expect(presentList.absentIds).toContain(suresh.id);
     expect(presentList.absentIds).not.toContain(manoj.id);
+  });
+
+  it('keeps the status of an ambiguous attendance row when a worker is picked', () => {
+    const rameshPatil = byName('Ramesh Patil');
+    const rameshPatel = byName('Ramesh Patel');
+    const statusSheet = attendanceFromSheet([['Name', 'Status'], ['Ramesh', 'P']], workers);
+    expect(statusSheet.ambiguousRows[0]).toMatchObject({text: 'Ramesh', meaning: 'present'});
+    expect(resolveAttendanceAbsentIds(statusSheet, {0: rameshPatil.id})).not.toContain(rameshPatil.id);
+
+    const absentSheet = attendanceFromSheet([['Name', 'Status'], ['Ramesh', 'A']], workers);
+    expect(absentSheet.ambiguousRows[0]).toMatchObject({text: 'Ramesh', meaning: 'absent'});
+    expect(resolveAttendanceAbsentIds(absentSheet, {0: rameshPatel.id})).toContain(rameshPatel.id);
+
+    const presentList = attendanceFromSheet([['Ramesh']], workers, 'present');
+    expect(resolveAttendanceAbsentIds(presentList, {0: rameshPatil.id})).not.toContain(rameshPatil.id);
   });
 
   it('reads a worker list and flags people already added', () => {

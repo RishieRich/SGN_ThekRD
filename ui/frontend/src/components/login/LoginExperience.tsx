@@ -1,14 +1,10 @@
 'use client';
 
-import {ArrowLeft, ArrowRight, Building2, Delete, FileSpreadsheet, HardHat, ShieldCheck, Sparkles, Users} from 'lucide-react';
+import {ArrowLeft, ArrowRight, Building2, Crown, Delete, Eye, FileSpreadsheet, HardHat, ShieldCheck, Sparkles, Users} from 'lucide-react';
 import {motion} from 'motion/react';
 import {NextIntlClientProvider, useTranslations} from 'next-intl';
 import {useRouter} from 'next/navigation';
 import {useState} from 'react';
-import en from '../../../messages/en.json';
-import hi from '../../../messages/hi.json';
-import mr from '../../../messages/mr.json';
-import gu from '../../../messages/gu.json';
 import {AmbientBackdrop} from '@/components/ambient/AmbientBackdrop';
 import {ParticleOrb} from '@/components/ambient/ParticleOrb';
 import {SiteScene} from '@/components/ambient/SiteScene';
@@ -16,15 +12,18 @@ import {LogoMark} from '@/components/brand/LogoMark';
 import {companies} from '@/data/sample-data';
 import {LanguageSwitch} from '@/components/ui/LanguageSwitch';
 import {users} from '@/data/users';
-import type {AppUser, Locale} from '@/types';
+import type {AppUser, Locale, UserRole} from '@/types';
+import {loadMessages, messagesFor} from '@/lib/messages';
 import styles from './login.module.css';
 
-const messages = {en, hi, mr, gu};
+
+const roleIcons: Record<UserRole, typeof Crown> = {owner: Crown, admin: ShieldCheck, viewer: Eye};
 
 export function LoginExperience() {
-  const [locale, setLocale] = useState<Locale>('en');
+  const [locale, setLocaleState] = useState<Locale>('en');
+  const setLocale = (next: Locale) => void loadMessages(next).then(() => setLocaleState(next));
   return (
-    <NextIntlClientProvider locale={locale} messages={messages[locale]} timeZone="Asia/Kolkata">
+    <NextIntlClientProvider locale={locale} messages={messagesFor(locale)} timeZone="Asia/Kolkata">
       <LoginPanel locale={locale} setLocale={setLocale} />
     </NextIntlClientProvider>
   );
@@ -129,16 +128,22 @@ function LoginPanel({locale, setLocale}: {locale: Locale; setLocale: (locale: Lo
               <h2>{t('title')}</h2>
               <p>{t('subtitle')}</p>
               <div className={styles.userList}>
-                {users.map((user, index) => (
-                  <button className={styles.userCard} key={user.id} onClick={() => selectUser(user)} type="button">
-                    <span className={`${styles.userAvatar} ${styles[`avatar${index + 1}`]}`}>{user.initials}</span>
-                    <span className={styles.userInfo}>
-                      <strong>{user.name}</strong>
-                      <small>{t(user.role)}</small>
-                    </span>
-                    <ArrowRight size={20} strokeWidth={1.8} />
-                  </button>
-                ))}
+                {users.map((user, index) => {
+                  const Icon = roleIcons[user.role];
+                  return (
+                    <button className={styles.userCard} key={user.id} onClick={() => selectUser(user)} type="button">
+                      <span className={`${styles.userAvatar} ${styles[`avatar${index + 1}`]}`}><Icon size={22} strokeWidth={1.9} /></span>
+                      <span className={styles.userInfo}>
+                        <span className={styles.roleLine}>
+                          <strong>{t(user.role)}</strong>
+                          <em data-role={user.role}>{t(`persona.${user.role}.access`)}</em>
+                        </span>
+                        <small>{t(`persona.${user.role}.hint`)}</small>
+                      </span>
+                      <ArrowRight size={20} strokeWidth={1.8} />
+                    </button>
+                  );
+                })}
               </div>
             </>
           ) : (
@@ -147,14 +152,20 @@ function LoginPanel({locale, setLocale}: {locale: Locale; setLocale: (locale: Lo
                 <ArrowLeft size={18} /> {t('switchUser')}
               </button>
               <div className={styles.pinIdentity}>
-                <span className={styles.pinAvatar}>{selectedUser.initials}</span>
+                <span className={styles.pinAvatar} data-role={selectedUser.role}>
+                  {(() => {
+                    const Icon = roleIcons[selectedUser.role];
+                    return <Icon size={22} strokeWidth={1.9} />;
+                  })()}
+                </span>
                 <span>
-                  <strong>{selectedUser.name}</strong>
-                  <small>{t(selectedUser.role)}</small>
+                  <strong>{t(selectedUser.role)}</strong>
+                  <small>{t(`persona.${selectedUser.role}.access`)}</small>
                 </span>
               </div>
-              <h2>{t('enterPin', {name: selectedUser.name})}</h2>
-              <div className={styles.pinDots} aria-label={t('enterPin', {name: selectedUser.name})}>
+              <p className={styles.pinScope}>{t(`persona.${selectedUser.role}.hint`)}</p>
+              <h2>{t('enterPin', {name: t(selectedUser.role)})}</h2>
+              <div className={styles.pinDots} aria-label={t('enterPin', {name: t(selectedUser.role)})}>
                 {[0, 1, 2, 3].map((index) => (
                   <span className={index < pin.length ? styles.pinDotFilled : styles.pinDot} key={index} />
                 ))}

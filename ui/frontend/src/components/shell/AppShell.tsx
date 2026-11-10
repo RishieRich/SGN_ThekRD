@@ -1,6 +1,6 @@
 'use client';
 
-import {AlertCircle, Bell, ClipboardCheck, Home, LogOut, MessageCircle, Sparkles, Users} from 'lucide-react';
+import {AlertCircle, Bell, ClipboardCheck, Eye, Home, LogOut, MessageCircle, ShieldCheck, Sparkles, Users} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
@@ -17,6 +17,8 @@ import {todayTotals} from '@/domain/attendance';
 import {reminderBuckets} from '@/domain/reminders';
 import {formatTime} from '@/lib/format';
 import {useApp} from '@/providers/AppProvider';
+import {displayName} from '@/data/users';
+import type {UserRole} from '@/types';
 import styles from './shell.module.css';
 
 const navItems = [
@@ -103,10 +105,10 @@ export function AppShell({children}: {children: React.ReactNode}) {
         )}
 
         <div className={styles.railProfile}>
-          <span className={styles.avatar}>{user.initials}</span>
+          <span className={styles.avatar}><ProfileMark role={user.role} initials={user.initials} /></span>
           <span className={styles.profileText}>
-            <strong>{user.name}</strong>
-            <small>{login(user.role)}</small>
+            <strong>{displayName(user, login(user.role))}</strong>
+            <small>{user.role === 'owner' ? login('owner') : login(`persona.${user.role}.access`)}</small>
           </span>
           <button aria-label={common('logout')} className={styles.logoutButton} onClick={logout} type="button">
             <LogOut size={18} />
@@ -141,7 +143,7 @@ export function AppShell({children}: {children: React.ReactNode}) {
           </button>
           <LanguageSwitch label={login('language')} locale={locale} onChange={setLocale} />
           <button aria-label={common('logout')} className={styles.mobileAvatar} onClick={logout} type="button">
-            {user.initials}
+            <ProfileMark role={user.role} initials={user.initials} />
           </button>
         </header>
 
@@ -180,4 +182,11 @@ export function AppShell({children}: {children: React.ReactNode}) {
       <Toaster />
     </div>
   );
+}
+
+/** The owner is a person (initials); Admin and Viewer are roles, shown by what they can do. */
+function ProfileMark({role, initials}: {role: UserRole; initials: string}) {
+  if (role === 'admin') return <ShieldCheck aria-hidden="true" size={17} strokeWidth={2} />;
+  if (role === 'viewer') return <Eye aria-hidden="true" size={17} strokeWidth={2} />;
+  return <>{initials}</>;
 }

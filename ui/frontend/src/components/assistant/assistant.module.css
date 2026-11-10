@@ -915,3 +915,46 @@
     animation: none;
   }
 }
+
+.spin {
+  animation: assistantSpin 0.9s linear infinite;
+}
+
+@keyframes assistantSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.aiSource {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 12px;
+  gap: 6px;
+  margin: -4px 0 12px;
+}
+
+.aiThinking {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  gap: 10px;
+  padding: 6px 0 4px;
+}
+
+.aiProblem {
+  background: var(--brass-100);
+  border-radius: 12px;
+  color: var(--ink);
+  font-size: 12.5px;
+  line-height: 1.45;
+  margin: 10px 0 0;
+  padding: 8px 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}

@@ -13,7 +13,7 @@ import {presetDueAt} from '@/domain/reminders';
 import {todayStrength} from '@/domain/strength';
 import {formatDate} from '@/lib/format';
 import {copyText, whatsappUrl} from '@/lib/share';
-import {speakInBrowser} from '@/lib/speech';
+import {speak} from '@/lib/speech';
 import {useApp} from '@/providers/AppProvider';
 import styles from './suggestions.module.css';
 
@@ -128,7 +128,7 @@ function SuggestionItem({suggestion, index, text, t}: {suggestion: Suggestion; i
           </div>
         )}
       </div>
-      <button aria-label={t('listen')} className={styles.speak} onClick={() => speakInBrowser(text, locale)} type="button"><Speaker size={15} /></button>
+      <button aria-label={t('listen')} className={styles.speak} onClick={() => speak(text, locale)} type="button"><Speaker size={15} /></button>
     </motion.li>
   );
 }
@@ -151,7 +151,7 @@ export function SuggestionList({limit = 5, initialAudience = 'owner'}: {limit?: 
           <h2><Sparkles size={18} /> {t('title')}</h2>
           <p>{t('subtitle')}</p>
         </div>
-        <button aria-label={t('listenAll')} className={styles.speakAll} onClick={() => speakInBrowser(shown.map(render).join('. '), locale)} type="button"><Speaker size={16} /></button>
+        <button aria-label={t('listenAll')} className={styles.speakAll} onClick={() => speak(shown.map(render).join('. '), locale)} type="button"><Speaker size={16} /></button>
       </div>
       <div aria-label={t('title')} className={styles.tabs} role="tablist">
         {(['owner', 'client'] as SuggestionAudience[]).map((key) => (

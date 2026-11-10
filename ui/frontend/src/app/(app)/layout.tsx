@@ -1,6 +1,7 @@
 import {redirect} from 'next/navigation';
 import {AppShell} from '@/components/shell/AppShell';
 import {AppProvider} from '@/providers/AppProvider';
+import {providerKeys} from '@/server/ai/providers';
 import {getCurrentUser} from '@/server/session';
 
 export default async function AuthenticatedLayout({children}: {children: React.ReactNode}) {
@@ -8,7 +9,7 @@ export default async function AuthenticatedLayout({children}: {children: React.R
   if (!user) redirect('/login');
 
   return (
-    <AppProvider user={user}>
+    <AppProvider ai={providerKeys()} user={user}>
       <AppShell>{children}</AppShell>
     </AppProvider>
   );

@@ -92,7 +92,7 @@ function WorkersScreen() {
     const query = search.trim().toLocaleLowerCase();
     const matches = workers.filter((worker) => {
       const company = companies.find((item) => item.id === worker.companyId);
-      const matchesQuery = !query || `${worker.name} ${roles(worker.role)} ${company?.name ?? ''} ${worker.phone}`.toLocaleLowerCase().includes(query);
+      const matchesQuery = !query || `${worker.name} ${roles(worker.role)} ${company?.name ?? ''} ${canEdit ? worker.phone : ''}`.toLocaleLowerCase().includes(query);
       const matchesCompany = !companyFilter || worker.companyId === companyFilter;
       const matchesFilter =
         filter === 'all' ||
@@ -111,7 +111,7 @@ function WorkersScreen() {
       return left.name.localeCompare(right.name);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyFilter, filter, notesByWorker, records, search, sort, workers]);
+  }, [canEdit, companyFilter, filter, notesByWorker, records, search, sort, workers]);
 
   const openWorker = workers.find((worker) => worker.id === openWorkerId) ?? null;
   const segments = companies.map((company) => ({
